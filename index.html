@@ -1331,7 +1331,7 @@
             scale: 2.5,
             dirX: -1,   // horizontal direction
             dirY: -0.2, // vertical direction
-            walkSpeed: 0.2,
+            walkSpeed: 0.35,
             shakeTimer: 0,  // butt shake timer
             throwTimer: 0,  // throwing animation timer
             throwFrame: 0,  // which throw frame
@@ -2343,8 +2343,8 @@
                 const dy = barTargetY - kitty.y;
 
                 kitty.poseIndex = 0; // walking
-                kitty.x += Math.sign(dx) * 0.25;
-                kitty.y += Math.sign(dy) * 0.2;
+                kitty.x += Math.sign(dx) * 0.4;
+                kitty.y += Math.sign(dy) * 0.3;
                 kitty.flip = dx < 0;
 
                 // If close to bar, pick it up!
@@ -2429,8 +2429,8 @@
                 const dy = barTargetY - kitty.y;
 
                 kitty.poseIndex = 5; // drinking pose (has glass in sprite)
-                kitty.x += Math.sign(dx) * 0.18;
-                kitty.y += Math.sign(dy) * 0.15;
+                kitty.x += Math.sign(dx) * 0.3;
+                kitty.y += Math.sign(dy) * 0.25;
                 kitty.flip = dx < 0;
 
                 // If back at bar, put glass down
