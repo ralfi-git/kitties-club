@@ -1331,7 +1331,7 @@
             scale: 2.5,
             dirX: -1,   // horizontal direction
             dirY: -0.2, // vertical direction
-            walkSpeed: 0.35,
+            walkSpeed: 0.2,
             shakeTimer: 0,  // butt shake timer
             throwTimer: 0,  // throwing animation timer
             throwFrame: 0,  // which throw frame
@@ -2343,8 +2343,8 @@
                 const dy = barTargetY - kitty.y;
 
                 kitty.poseIndex = 0; // walking
-                kitty.x += Math.sign(dx) * 0.4;
-                kitty.y += Math.sign(dy) * 0.3;
+                kitty.x += Math.sign(dx) * 0.25;
+                kitty.y += Math.sign(dy) * 0.2;
                 kitty.flip = dx < 0;
 
                 // If close to bar, pick it up!
@@ -2429,8 +2429,8 @@
                 const dy = barTargetY - kitty.y;
 
                 kitty.poseIndex = 5; // drinking pose (has glass in sprite)
-                kitty.x += Math.sign(dx) * 0.3;
-                kitty.y += Math.sign(dy) * 0.25;
+                kitty.x += Math.sign(dx) * 0.18;
+                kitty.y += Math.sign(dy) * 0.15;
                 kitty.flip = dx < 0;
 
                 // If back at bar, put glass down
@@ -2544,12 +2544,36 @@
             }
             drawKitty(kittySprite, kitty.x + kittyShakeX, kitty.y, kitty.scale, kitty.flip);
 
-            // Draw martini separately when Kitty is drinking (same scale as bar)
+            // Draw martini separately when Kitty has drink
             if (kittyAtBar.pickedUp && kitty.poseIndex === 5) {
-                // Position glass TOP rim just below nose (nose is row 5)
-                const handX = (kitty.x + kittyShakeX + (kitty.flip ? -8 : 14)) * PIXEL_SIZE;
-                const handY = (kitty.y + 16) * PIXEL_SIZE;
-                drawMartiniGlass(handX, handY, 5);
+                const glassScale = 5;
+                const spriteScale = kitty.scale; // 2.5
+                
+                // Use a slow timer for hold/sip cycle (not tied to animation frames)
+                // Cycle: hold for ~120 frames, sip for ~60 frames
+                const sipCycle = 180; // total cycle length
+                const sipStart = 120; // sipping starts at frame 120
+                const cycleFrame = Math.floor(Date.now() / 50) % sipCycle;
+                const isSipping = cycleFrame >= sipStart;
+                
+                if (isSipping) {
+                    // SIPPING: Glass centered under face
+                    // Sprite is 15 columns wide, center at 7.5 * spriteScale
+                    // Subtract half glass width in game units: (7 * glassScale / 2) / PIXEL_SIZE
+                    const centerOffset = 7.5 * spriteScale - (7 * glassScale / 2) / PIXEL_SIZE;
+                    const glassX = (kitty.x + kittyShakeX + centerOffset) * PIXEL_SIZE;
+                    // Position rim just below nose (nose is at row 5, place glass at row 6)
+                    const glassY = (kitty.y + 6 * spriteScale) * PIXEL_SIZE;
+                    drawMartiniGlass(glassX, glassY, glassScale);
+                } else {
+                    // HOLDING: Glass to the side, hand grips stem
+                    // Arm is at edge of sprite (column 0 or 14 depending on flip)
+                    const armOffset = kitty.flip ? -3 : 14 * spriteScale;
+                    const handX = (kitty.x + kittyShakeX + armOffset) * PIXEL_SIZE;
+                    const handY = (kitty.y + 7 * spriteScale) * PIXEL_SIZE;
+                    const glassY = handY - (glassScale * 3.5);
+                    drawMartiniGlass(handX, glassY, glassScale);
+                }
             }
 
             // Draw neon sign title - "Kittie's" - realistic hot pink neon
