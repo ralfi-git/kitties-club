@@ -336,6 +336,8 @@
             drinkTimer: 0,
             drinkDuration: 2250,  // 30-45 seconds, set on pickup
             glassEmpty: false,    // glass emptied on last sip
+            glassCurrentX: 0,     // current glass X for smooth animation
+            glassCurrentY: 0,     // current glass Y for smooth animation
             cooldown: 200,  // start soon
         };
 
@@ -1161,7 +1163,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],  // head
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],  // eyes
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],  // nose
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],  // whiskers
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],  // whiskers
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],  // chin
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],  // dress
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],  // dress
@@ -1177,7 +1179,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],  // head
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],  // eyes
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],  // nose
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],  // whiskers
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],  // whiskers
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],  // chin
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],  // dress
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],  // dress
@@ -1193,7 +1195,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],  // whiskers
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],  // whiskers
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],  // dress
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1261,7 +1263,7 @@
             [1,1,1],  // body
             [0,1,0],  // tip
         ];
-        // Hello Kitty cheering - arms up celebrating
+        // Hello Kitty cheering - arms up celebrating (no side whiskers - hands are up!)
         const KITTY_CHEER_1 = [
             [0,8,0,3,0,0,0,0,0,0,0,3,0,8,0],
             [0,8,3,1,3,0,2,2,2,0,3,1,3,8,0],
@@ -1269,7 +1271,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,3,1,1,1,1,1,1,1,1,1,3,0,0],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1283,7 +1285,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,3,1,1,1,1,1,1,1,1,1,3,0,0],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1299,7 +1301,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],  // whiskers
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],  // whiskers
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,3,7,7,7,7,7,7,7,3,0,0,0],  // dress
             [0,0,8,7,7,7,7,7,7,7,7,7,8,0,0],
@@ -1314,7 +1316,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1329,14 +1331,14 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0],
             [0,0,0,0,0,0,8,0,8,0,0,0,0,0,0],
         ];
-        // Hello Kitty jumping up with joy
+        // Hello Kitty jumping up with joy (no side whiskers - hands are up!)
         const KITTY_JUMP_1 = [
             [0,0,0,8,0,0,0,0,0,0,0,8,0,0,0],
             [0,0,0,3,0,0,0,0,0,0,0,3,0,0,0],
@@ -1345,7 +1347,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,3,1,1,1,1,1,1,1,1,1,3,0,0],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1360,7 +1362,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,3,1,1,1,1,1,1,1,1,1,3,0,0],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1390,7 +1392,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,3,7,7,7,7,7,7,7,3,0,0,0],
             [0,0,3,7,7,7,7,7,7,7,7,7,3,0,0],
@@ -1404,7 +1406,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,3,7,7,7,7,7,7,7,7,7,3,0,0],
             [0,3,7,7,7,7,7,7,7,7,7,7,7,3,0],
@@ -1420,7 +1422,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1434,7 +1436,7 @@
             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [8,8,3,1,1,1,1,1,1,1,1,1,3,8,8],
             [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
@@ -1468,6 +1470,7 @@
             { name: 'drinking', frames: [KITTY_DRINK_1, KITTY_DRINK_2], duration: 4000 },
             { name: 'curtsy', frames: [KITTY_CURTSY], duration: 2500 },
             { name: 'twirl', frames: [KITTY_TWIRL_1, KITTY_TWIRL_2, KITTY_TWIRL_1, KITTY_TWIRL_2], duration: 3000 },
+            { name: 'throwing', frames: [KITTY_THROW_1, KITTY_THROW_2, KITTY_THROW_1, KITTY_THROW_2], duration: 2500 },
         ];
 
         // Hello Kitty state - walks around randomly in X and Y
@@ -2789,6 +2792,8 @@
                     kittyAtBar.drinkTimer = 0;
                     kittyAtBar.drinkDuration = 1800 + Math.random() * 900; // 30-45 sec
                     kittyAtBar.glassEmpty = false; // fresh drink
+                    kittyAtBar.glassCurrentX = 0; // reset for smooth animation
+                    kittyAtBar.glassCurrentY = 0;
                     // Start moving away from bar
                     kitty.dirX = (Math.random() - 0.5) * 2;
                     kitty.dirY = -0.5;
@@ -3002,32 +3007,40 @@
             if (kittyAtBar.pickedUp && kitty.poseIndex === 4) {
                 const glassScale = 5;
                 const spriteScale = kitty.scale; // 2.5
-                
+
                 // Use a slow timer for hold/sip cycle (not tied to animation frames)
                 // Cycle: hold for ~120 frames, sip for ~60 frames
                 const sipCycle = 180; // total cycle length
                 const sipStart = 120; // sipping starts at frame 120
                 const cycleFrame = Math.floor(Date.now() / 50) % sipCycle;
                 const isSipping = cycleFrame >= sipStart;
-                
+
+                // Calculate target positions
+                let targetX, targetY;
                 if (isSipping) {
                     // SIPPING: Glass centered under face
-                    // Sprite is 15 columns wide, center at 7.5 * spriteScale
-                    // Subtract half glass width in game units: (7 * glassScale / 2) / PIXEL_SIZE
                     const centerOffset = 7.5 * spriteScale - (7 * glassScale / 2) / PIXEL_SIZE;
-                    const glassX = (kitty.x + kittyShakeX + centerOffset) * PIXEL_SIZE;
-                    // Position rim just below nose (nose is at row 5, place glass at row 6)
-                    const glassY = (kitty.y + 6 * spriteScale) * PIXEL_SIZE;
-                    drawMartiniGlass(glassX, glassY, glassScale, kittyAtBar.glassEmpty);
+                    targetX = (kitty.x + kittyShakeX + centerOffset) * PIXEL_SIZE;
+                    targetY = (kitty.y + 6 * spriteScale) * PIXEL_SIZE;
                 } else {
-                    // HOLDING: Glass to the side, hand grips stem
-                    // Arm is at edge of sprite (column 0 or 14 depending on flip)
+                    // HOLDING: Glass to the side
                     const armOffset = kitty.flip ? -3 : 14 * spriteScale;
-                    const handX = (kitty.x + kittyShakeX + armOffset) * PIXEL_SIZE;
-                    const handY = (kitty.y + 7 * spriteScale) * PIXEL_SIZE;
-                    const glassY = handY - (glassScale * 3.5);
-                    drawMartiniGlass(handX, glassY, glassScale, kittyAtBar.glassEmpty);
+                    targetX = (kitty.x + kittyShakeX + armOffset) * PIXEL_SIZE;
+                    targetY = (kitty.y + 7 * spriteScale) * PIXEL_SIZE - (glassScale * 3.5);
                 }
+
+                // Initialize glass position if not set
+                if (!kittyAtBar.glassCurrentX) {
+                    kittyAtBar.glassCurrentX = targetX;
+                    kittyAtBar.glassCurrentY = targetY;
+                }
+
+                // Smoothly interpolate glass position
+                const lerpSpeed = 0.15;
+                kittyAtBar.glassCurrentX += (targetX - kittyAtBar.glassCurrentX) * lerpSpeed;
+                kittyAtBar.glassCurrentY += (targetY - kittyAtBar.glassCurrentY) * lerpSpeed;
+
+                drawMartiniGlass(kittyAtBar.glassCurrentX, kittyAtBar.glassCurrentY, glassScale, kittyAtBar.glassEmpty);
             }
 
             // Draw neon sign title - "Kittie's" - realistic hot pink neon
