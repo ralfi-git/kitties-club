@@ -58,6 +58,8 @@
             5: '#ffffff',  // white crop top
             6: '#4a6fa5',  // denim blue
             7: '#3d5c8a',  // darker denim
+            8: '#a8a8a8',  // metal shaker body
+            9: '#c0c0c0',  // metal shaker highlight
         };
 
         // Blonde bartender - standing pose with bob cut, jean mini skirt and long legs
@@ -122,8 +124,8 @@
 
         // Bartender shaking cocktail - frame 1 (shaker up left)
         const BARTENDER_SHAKE_1 = [
-            [0,0,0,0,0,5,5,0,0,0,0],
-            [0,0,2,2,2,5,5,2,0,0,0],
+            [0,0,0,0,9,8,8,9,0,0,0],
+            [0,0,2,2,1,8,8,1,0,0,0],
             [0,2,3,2,2,1,1,2,0,0,0],
             [0,2,4,1,1,1,4,2,0,0,0],
             [0,2,4,1,1,1,4,2,0,0,0],
@@ -142,8 +144,8 @@
 
         // Bartender shaking cocktail - frame 2 (shaker up right)
         const BARTENDER_SHAKE_2 = [
-            [0,0,0,0,5,5,0,0,0,0,0],
-            [0,0,0,2,5,5,2,2,2,0,0],
+            [0,0,0,9,8,8,9,0,0,0,0],
+            [0,0,0,1,8,8,1,2,2,0,0],
             [0,0,0,2,1,1,2,2,3,2,0],
             [0,0,0,2,4,1,1,1,4,2,0],
             [0,0,0,2,4,1,1,1,4,2,0],
@@ -316,13 +318,24 @@
         // Kitty bar visit state
         let kittyAtBar = {
             visiting: false,
+            waitingForDrink: false, // wandering while bartender makes drink
+            cheering: false,        // cheering when drink is ready
+            cheerTimer: 0,          // how long to cheer
             drinkOnBar: false,      // full drink waiting on counter
             emptyGlassOnBar: false, // empty glass left by Kitty
             pickedUp: false,        // Kitty has the drink
             returning: false,       // Kitty walking back to return glass
+            glassFlying: false,     // glass animating to/from Kitty's hand
+            glassFlyProgress: 0,    // 0 to 1 animation progress
+            glassStartX: 0,
+            glassStartY: 0,
+            glassTargetX: 0,
+            glassTargetY: 0,
             drinkX: 0,
             drinkY: 0,
             drinkTimer: 0,
+            drinkDuration: 2250,  // 30-45 seconds, set on pickup
+            glassEmpty: false,    // glass emptied on last sip
             cooldown: 200,  // start soon
         };
 
@@ -1048,11 +1061,17 @@
         function createStar() {
             const sizeRoll = Math.random();
             const variety = Math.floor(Math.random() * STAR_VARIETIES.length);
-            // Avoid bar area (left side of screen)
-            const minX = 60;  // bar ends around x=55 in grid units
+            // Stars can appear anywhere in upper portion, but avoid bar area
+            // Bar is x: 5-55 grid units, y: ~20+ grid units (below very top)
+            let x = Math.random() * cols;
+            let y = Math.random() * rows * 0.5;  // upper half
+            // If in bar x-range, only allow very top (above bar back wall)
+            if (x < 58) {
+                y = Math.random() * 18;  // only very top, above bar
+            }
             return {
-                x: minX + Math.random() * (cols - minX),
-                y: Math.random() * rows * 0.5,  // upper half
+                x: x,
+                y: y,
                 brightness: 0.5 + Math.random() * 0.5,
                 twinkleSpeed: 0.05 + Math.random() * 0.15,
                 twinkleOffset: Math.random() * Math.PI * 2,
@@ -1242,36 +1261,34 @@
             [1,1,1],  // body
             [0,1,0],  // tip
         ];
-        // Hello Kitty waving
-        const KITTY_WAVE_1 = [
-            [0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,0],
-            [0,0,3,1,3,0,2,2,2,0,3,1,3,0,0,0],
-            [0,0,3,1,1,3,2,3,2,3,1,1,3,0,0,0],
-            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0,0],
-            [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0,0],
-            [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5,0],
-            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,8,0],
-            [0,0,0,0,3,7,7,7,7,7,3,0,0,8,0,0],
-            [0,0,0,0,3,7,7,7,7,7,3,0,8,0,0,0],
-            [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0,0],
-            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0,0],
-            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0,0],
+        // Hello Kitty cheering - arms up celebrating
+        const KITTY_CHEER_1 = [
+            [0,8,0,3,0,0,0,0,0,0,0,3,0,8,0],
+            [0,8,3,1,3,0,2,2,2,0,3,1,3,8,0],
+            [0,0,3,1,1,3,2,3,2,3,1,1,3,0,0],
+            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+            [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
+            [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
+            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
+            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
+            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
+            [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0],
+            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0],
         ];
-        const KITTY_WAVE_2 = [
-            [0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,0,0],
-            [0,0,3,1,3,0,2,2,2,0,3,1,3,0,0,0,0],
-            [0,0,3,1,1,3,2,3,2,3,1,1,3,0,0,0,0],
-            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0],
-            [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0,0,0],
-            [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0,0,0],
-            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5,0,8],
-            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0,8,0],
-            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,8,0,0],
-            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0,0,0],
-            [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0,0,0],
-            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0,0,0],
-            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0,0,0],
+        const KITTY_CHEER_2 = [
+            [8,0,0,3,0,0,0,0,0,0,0,3,0,0,8],
+            [0,8,3,1,3,0,2,2,2,0,3,1,3,8,0],
+            [0,0,3,1,1,3,2,3,2,3,1,1,3,0,0],
+            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+            [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
+            [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
+            [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
+            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
+            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
+            [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
+            [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0],
+            [0,0,0,0,0,8,0,0,0,8,0,0,0,0,0],
         ];
 
         // Hello Kitty sitting cutely
@@ -1298,7 +1315,7 @@
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
             [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
-            [0,0,0,3,3,1,1,1,1,1,3,3,8,8,0],
+            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0],
@@ -1313,7 +1330,7 @@
             [0,3,1,1,4,1,1,1,1,1,4,1,1,3,0],
             [0,3,1,1,1,1,1,6,1,1,1,1,1,3,0],
             [5,5,3,1,1,1,1,1,1,1,1,1,3,5,5],
-            [0,0,0,3,3,1,1,1,1,1,3,3,8,8,0],
+            [0,0,0,3,3,1,1,1,1,1,3,3,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,3,7,7,7,7,7,3,0,0,0,0],
             [0,0,0,0,0,3,7,7,7,3,0,0,0,0,0],
@@ -1446,8 +1463,7 @@
         const KITTY_POSES = [
             { name: 'walking', frames: [KITTY_WALK_1, KITTY_WALK_2], duration: 2500 },
             { name: 'standing', frames: [KITTY_STAND], duration: 2000 },
-            { name: 'waving', frames: [KITTY_WAVE_1, KITTY_WAVE_2], duration: 3000 },
-            { name: 'sitting', frames: [KITTY_SIT], duration: 3500 },
+            { name: 'cheering', frames: [KITTY_CHEER_1, KITTY_CHEER_2], duration: 2500 },
             { name: 'jumping', frames: [KITTY_JUMP_1, KITTY_JUMP_2, KITTY_JUMP_1, KITTY_JUMP_2], duration: 2500 },
             { name: 'drinking', frames: [KITTY_DRINK_1, KITTY_DRINK_2], duration: 4000 },
             { name: 'curtsy', frames: [KITTY_CURTSY], duration: 2500 },
@@ -2232,9 +2248,14 @@
             kittyAtBar.cooldown--;
             if (!kittyAtBar.visiting && kittyAtBar.cooldown <= 0 && Math.random() < 0.003) {
                 kittyAtBar.visiting = true;
+                kittyAtBar.waitingForDrink = true;
+                kittyAtBar.cheering = false;
                 kittyAtBar.drinkOnBar = false;
                 kittyAtBar.pickedUp = false;
                 kittyAtBar.drinkTimer = 0;
+                // Start Kitty walking away from bar while waiting
+                kitty.dirX = 0.5 + Math.random() * 0.5;  // move right (away from bar)
+                kitty.dirY = (Math.random() - 0.5) * 0.5;
                 // If there's an empty glass, bartender cleans it first
                 if (kittyAtBar.emptyGlassOnBar) {
                     bartenderCleaning.active = true;
@@ -2270,6 +2291,9 @@
                     // Done - drink ready on counter
                     bartender.makingDrink = false;
                     kittyAtBar.drinkOnBar = true;
+                    kittyAtBar.waitingForDrink = false;
+                    kittyAtBar.cheering = true;
+                    kittyAtBar.cheerTimer = 60;  // cheer for ~1 second
                     kittyAtBar.drinkX = barX + barWidth - 30;
                     kittyAtBar.drinkY = barY - 20;
                 }
@@ -2283,7 +2307,7 @@
             }
 
             // Function to draw the martini glass at any position
-            function drawMartiniGlass(x, y, scale) {
+            function drawMartiniGlass(x, y, scale, isEmpty) {
                 const s = scale || 4;
                 // Glass outline - V shape
                 ctx.fillStyle = '#c0c0c0';
@@ -2301,16 +2325,19 @@
                 // Base
                 ctx.fillRect(x + s * 2, y + s * 6, s * 3, s);
 
-                // Dirty martini liquid (greenish)
-                ctx.fillStyle = 'rgba(180, 200, 160, 0.7)';
-                ctx.fillRect(x + s, y + s, s * 5, s);
-                ctx.fillRect(x + s * 2, y + s * 2, s * 3, s);
+                // Only draw liquid and olive if not empty
+                if (!isEmpty) {
+                    // Dirty martini liquid (greenish)
+                    ctx.fillStyle = 'rgba(180, 200, 160, 0.7)';
+                    ctx.fillRect(x + s, y + s, s * 5, s);
+                    ctx.fillRect(x + s * 2, y + s * 2, s * 3, s);
 
-                // Olive with pimento
-                ctx.fillStyle = '#556b2f';
-                ctx.fillRect(x + s * 2.5, y + s * 0.5, s * 1.5, s * 1.5);
-                ctx.fillStyle = '#8b0000';
-                ctx.fillRect(x + s * 3, y + s * 0.8, s * 0.6, s * 0.6);
+                    // Olive with pimento
+                    ctx.fillStyle = '#556b2f';
+                    ctx.fillRect(x + s * 2.5, y + s * 0.5, s * 1.5, s * 1.5);
+                    ctx.fillStyle = '#8b0000';
+                    ctx.fillRect(x + s * 3, y + s * 0.8, s * 0.6, s * 0.6);
+                }
             }
 
             // Draw martini on counter when ready (full drink waiting)
@@ -2318,21 +2345,19 @@
                 drawMartiniGlass(kittyAtBar.drinkX, kittyAtBar.drinkY + 5, 5);
             }
 
+            // Draw flying glass animation (vacuum to Kitty's hand)
+            if (kittyAtBar.glassFlying) {
+                // Ease out cubic for smooth deceleration
+                const t = kittyAtBar.glassFlyProgress;
+                const ease = 1 - Math.pow(1 - t, 3);
+                const flyX = kittyAtBar.glassStartX + (kittyAtBar.glassTargetX - kittyAtBar.glassStartX) * ease;
+                const flyY = kittyAtBar.glassStartY + (kittyAtBar.glassTargetY - kittyAtBar.glassStartY) * ease;
+                drawMartiniGlass(flyX, flyY, 5);
+            }
+
             // Draw empty glass on counter (after Kitty returns it)
             if (kittyAtBar.emptyGlassOnBar && !bartenderCleaning.active) {
-                // Empty martini glass (no liquid, no olive)
-                const x = kittyAtBar.drinkX;
-                const y = kittyAtBar.drinkY + 5;
-                const s = 5;
-                ctx.fillStyle = '#c0c0c0';
-                ctx.fillRect(x, y, s * 7, s);
-                ctx.fillRect(x + s, y + s, s, s);
-                ctx.fillRect(x + s * 2, y + s * 2, s, s);
-                ctx.fillRect(x + s * 3, y + s * 3, s, s);
-                ctx.fillRect(x + s * 5, y + s, s, s);
-                ctx.fillRect(x + s * 4, y + s * 2, s, s);
-                ctx.fillRect(x + s * 3, y + s * 4, s, s * 2);
-                ctx.fillRect(x + s * 2, y + s * 6, s * 3, s);
+                drawMartiniGlass(kittyAtBar.drinkX, kittyAtBar.drinkY + 5, 5, true);
             }
 
             // Spawn stars slowly
@@ -2608,6 +2633,12 @@
                 if (anna.x > cols * 0.85) anna.x = cols * 0.85;
                 if (anna.x < cols * 0.05) anna.x = cols * 0.05;
 
+                // Keep off the bar area (bar is x < 58 grid units, y > 35 grid units)
+                if (anna.x < 58 && anna.y > 35) {
+                    anna.x = 58;
+                    anna.dirX = Math.abs(anna.dirX);  // bounce away from bar
+                }
+
                 // Vacuum and collect money near Anna
                 const bagX = anna.x + (anna.flip ? 6 : 19);  // bag position
                 const bagY = anna.y + 18;
@@ -2689,8 +2720,33 @@
                 kitty.frame = (kitty.frame + 1) % KITTY_POSES[kitty.poseIndex].frames.length;
             }
 
-            // Hello Kitty going to bar for martini - only when drink is ready on counter!
-            if (kittyAtBar.visiting && kittyAtBar.drinkOnBar && !kittyAtBar.pickedUp) {
+            // Kitty waiting for drink - wander around
+            if (kittyAtBar.waitingForDrink) {
+                kitty.poseIndex = 0; // walking
+                kitty.x += kitty.dirX * kitty.walkSpeed;
+                kitty.y += kitty.dirY * kitty.walkSpeed;
+                kitty.flip = kitty.dirX < 0;
+                // Bounce at edges but stay away from bar
+                if (kitty.x > cols * 0.8) kitty.dirX = -Math.abs(kitty.dirX);
+                if (kitty.x < 60) kitty.dirX = Math.abs(kitty.dirX);
+                if (kitty.y > rows * 0.7) kitty.dirY = -Math.abs(kitty.dirY);
+                if (kitty.y < rows * 0.3) kitty.dirY = Math.abs(kitty.dirY);
+                // Random direction changes
+                if (Math.random() < 0.01) {
+                    kitty.dirX = (Math.random() - 0.3) * 1.5;  // bias toward right
+                    kitty.dirY = (Math.random() - 0.5) * 0.8;
+                }
+            }
+            // Kitty cheering when drink is ready!
+            else if (kittyAtBar.cheering) {
+                kitty.poseIndex = 2; // cheering pose
+                kittyAtBar.cheerTimer--;
+                if (kittyAtBar.cheerTimer <= 0) {
+                    kittyAtBar.cheering = false;
+                }
+            }
+            // Hello Kitty going to bar for martini - after cheering
+            else if (kittyAtBar.visiting && kittyAtBar.drinkOnBar && !kittyAtBar.pickedUp) {
                 // Walk to the right side of the bar (customer side) to pick up drink
                 const barTargetX = (barX + barWidth + 50) / PIXEL_SIZE;
                 const barTargetY = (barY + 50) / PIXEL_SIZE;
@@ -2702,19 +2758,44 @@
                 kitty.y += Math.sign(dy) * 0.3;
                 kitty.flip = dx < 0;
 
-                // If close to bar, pick up the drink from the counter!
-                if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+                // If close to bar, start glass flying animation!
+                if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && !kittyAtBar.glassFlying) {
+                    kittyAtBar.glassFlying = true;
+                    kittyAtBar.glassFlyProgress = 0;
+                    kittyAtBar.drinkOnBar = false;
+                    // Start position: on the counter
+                    kittyAtBar.glassStartX = kittyAtBar.drinkX;
+                    kittyAtBar.glassStartY = kittyAtBar.drinkY + 5;
+                    kitty.poseIndex = 4; // drinking pose (ready to receive)
+                    kitty.flip = true; // face the bar
+                }
+            } else if (kittyAtBar.glassFlying && !kittyAtBar.pickedUp) {
+                // Animate glass flying to Kitty's hand
+                kittyAtBar.glassFlyProgress += 0.08;
+
+                // Calculate target: Kitty's hand position (holding pose)
+                const spriteScale = kitty.scale;
+                const glassScale = 5;
+                const armOffset = kitty.flip ? -3 : 14 * spriteScale;
+                const handX = (kitty.x + armOffset) * PIXEL_SIZE;
+                const handY = (kitty.y + 7 * spriteScale) * PIXEL_SIZE - (glassScale * 3.5);
+                kittyAtBar.glassTargetX = handX;
+                kittyAtBar.glassTargetY = handY;
+
+                if (kittyAtBar.glassFlyProgress >= 1) {
+                    // Animation complete - Kitty now has the drink
+                    kittyAtBar.glassFlying = false;
                     kittyAtBar.pickedUp = true;
-                    kittyAtBar.drinkOnBar = false; // drink no longer on bar
                     kittyAtBar.drinkTimer = 0;
-                    kitty.poseIndex = 5; // drinking pose
-                    // Start moving away from bar with drink
+                    kittyAtBar.drinkDuration = 1800 + Math.random() * 900; // 30-45 sec
+                    kittyAtBar.glassEmpty = false; // fresh drink
+                    // Start moving away from bar
                     kitty.dirX = (Math.random() - 0.5) * 2;
-                    kitty.dirY = -0.5; // walk away from bar (toward center)
+                    kitty.dirY = -0.5;
                 }
             } else if (kittyAtBar.pickedUp && !kittyAtBar.returning) {
                 // Walking around with the martini - normal behavior but holding drink
-                kitty.poseIndex = 5; // drinking pose
+                kitty.poseIndex = 4; // drinking pose
                 kittyAtBar.drinkTimer++;
 
                 // Normal walking - check for money (same as regular walking)
@@ -2767,14 +2848,25 @@
                 if (kitty.y > rows * 0.7) kitty.dirY = -Math.abs(kitty.dirY);
                 else if (kitty.y < rows * 0.3) kitty.dirY = Math.abs(kitty.dirY);
 
+                // Keep off the bar area (bar is x < 58 grid units, y > 35 grid units)
+                if (kitty.x < 58 && kitty.y > 35) {
+                    kitty.x = 58;
+                    kitty.dirX = Math.abs(kitty.dirX);  // bounce away from bar
+                }
+
                 // Randomly change direction
                 if (Math.random() < 0.008) {
                     kitty.dirX = (Math.random() - 0.5) * 2;
                     kitty.dirY = (Math.random() - 0.5) * 1;
                 }
 
-                // Done drinking after 1 minute (~3600 frames)
-                if (kittyAtBar.drinkTimer > 3600) {
+                // Glass becomes empty at 90% through drinking
+                if (kittyAtBar.drinkTimer > kittyAtBar.drinkDuration * 0.9) {
+                    kittyAtBar.glassEmpty = true;
+                }
+
+                // Done drinking after 30-45 seconds
+                if (kittyAtBar.drinkTimer > kittyAtBar.drinkDuration) {
                     kittyAtBar.returning = true;
                 }
             } else if (kittyAtBar.returning) {
@@ -2784,7 +2876,7 @@
                 const dx = barTargetX - kitty.x;
                 const dy = barTargetY - kitty.y;
 
-                kitty.poseIndex = 5; // drinking pose (has glass in sprite)
+                kitty.poseIndex = 4; // drinking pose (has glass in sprite)
                 kitty.x += Math.sign(dx) * 0.3;
                 kitty.y += Math.sign(dy) * 0.25;
                 kitty.flip = dx < 0;
@@ -2863,6 +2955,13 @@
                 } else if (kitty.y < rows * 0.3) {
                     kitty.dirY = Math.abs(kitty.dirY);
                 }
+
+                // Keep off the bar area (bar is x < 58 grid units, y > 35 grid units)
+                if (kitty.x < 58 && kitty.y > 35) {
+                    kitty.x = 58;
+                    kitty.dirX = Math.abs(kitty.dirX);
+                }
+
                 // Randomly change direction (less often when collecting)
                 if (Math.random() < 0.008) {
                     kitty.dirX = (Math.random() - 0.5) * 2;
@@ -2900,7 +2999,7 @@
             drawKitty(kittySprite, kitty.x + kittyShakeX, kitty.y, kitty.scale, kitty.flip);
 
             // Draw martini separately when Kitty has drink
-            if (kittyAtBar.pickedUp && kitty.poseIndex === 5) {
+            if (kittyAtBar.pickedUp && kitty.poseIndex === 4) {
                 const glassScale = 5;
                 const spriteScale = kitty.scale; // 2.5
                 
@@ -2919,7 +3018,7 @@
                     const glassX = (kitty.x + kittyShakeX + centerOffset) * PIXEL_SIZE;
                     // Position rim just below nose (nose is at row 5, place glass at row 6)
                     const glassY = (kitty.y + 6 * spriteScale) * PIXEL_SIZE;
-                    drawMartiniGlass(glassX, glassY, glassScale);
+                    drawMartiniGlass(glassX, glassY, glassScale, kittyAtBar.glassEmpty);
                 } else {
                     // HOLDING: Glass to the side, hand grips stem
                     // Arm is at edge of sprite (column 0 or 14 depending on flip)
@@ -2927,7 +3026,7 @@
                     const handX = (kitty.x + kittyShakeX + armOffset) * PIXEL_SIZE;
                     const handY = (kitty.y + 7 * spriteScale) * PIXEL_SIZE;
                     const glassY = handY - (glassScale * 3.5);
-                    drawMartiniGlass(handX, glassY, glassScale);
+                    drawMartiniGlass(handX, glassY, glassScale, kittyAtBar.glassEmpty);
                 }
             }
 
