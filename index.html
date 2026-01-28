@@ -929,7 +929,54 @@
             bendTimer: 0,
         };
 
-        // Floating objects
+        // Twinkling stars (hamam style - stationary, fade in/out)
+        let twinklingStars = [];
+        const MAX_STARS = 8;  // fewer stars
+        const STAR_SPAWN_CHANCE = 0.008;  // appear once in a while
+
+        // 20 star varieties with different colors and characteristics (from hamam)
+        const STAR_VARIETIES = [
+            { color: [100, 180, 255], name: 'blue' },           // 0: bright blue
+            { color: [150, 200, 255], name: 'light-blue' },     // 1: light blue
+            { color: [80, 150, 255], name: 'deep-blue' },       // 2: deep blue
+            { color: [255, 255, 255], name: 'white' },          // 3: pure white
+            { color: [255, 250, 240], name: 'warm-white' },     // 4: warm white
+            { color: [240, 248, 255], name: 'cool-white' },     // 5: cool white
+            { color: [200, 220, 255], name: 'pale-blue' },      // 6: pale blue
+            { color: [170, 200, 255], name: 'sky-blue' },       // 7: sky blue
+            { color: [130, 170, 255], name: 'medium-blue' },    // 8: medium blue
+            { color: [255, 255, 200], name: 'yellow-white' },   // 9: slight yellow
+            { color: [255, 240, 220], name: 'cream' },          // 10: cream
+            { color: [220, 240, 255], name: 'ice-blue' },       // 11: ice blue
+            { color: [180, 210, 255], name: 'soft-blue' },      // 12: soft blue
+            { color: [140, 190, 255], name: 'azure' },          // 13: azure
+            { color: [255, 255, 240], name: 'ivory' },          // 14: ivory
+            { color: [200, 200, 255], name: 'lavender' },       // 15: slight lavender
+            { color: [160, 200, 240], name: 'steel-blue' },     // 16: steel blue
+            { color: [120, 180, 255], name: 'cobalt' },         // 17: cobalt
+            { color: [190, 220, 255], name: 'powder-blue' },    // 18: powder blue
+            { color: [255, 252, 250], name: 'snow' },           // 19: snow white
+        ];
+
+        function createTwinklingStar() {
+            const sizeRoll = Math.random();
+            const variety = Math.floor(Math.random() * 20);
+            return {
+                x: Math.random() * cols * 0.9 + cols * 0.05,
+                y: Math.random() * rows * 0.5 + rows * 0.05,  // upper half of screen
+                brightness: 0.4 + Math.random() * 0.6,
+                twinkleSpeed: 0.08 + Math.random() * 0.25,  // slower, subtler (from hamam)
+                twinkleOffset: Math.random() * Math.PI * 2,
+                life: 0,
+                maxLife: 300 + Math.random() * 400,  // 5-12 seconds at 60fps
+                color: STAR_VARIETIES[variety].color,
+                // Size: 0-7 for variety (0=tiny dot, 7=huge sparkle) - from hamam
+                size: sizeRoll < 0.35 ? 0 : (sizeRoll < 0.50 ? 1 : (sizeRoll < 0.65 ? 2 : (sizeRoll < 0.78 ? 3 : (sizeRoll < 0.88 ? 4 : (sizeRoll < 0.94 ? 5 : (sizeRoll < 0.98 ? 6 : 7)))))),
+                spikes: Math.random() < 0.12 ? 6 : 4, // 12% chance of 6-spike star
+            };
+        }
+
+        // Floating objects (keeping for other things if needed)
         let floaties = [];
 
         // Hearts - various sizes
@@ -1658,11 +1705,107 @@
             };
         }
 
-        // Initialize floaties - more variety!
-        for (let i = 0; i < 30; i++) {
-            const f = createFloatie();
-            f.y = Math.random() * rows;
-            floaties.push(f);
+        // Floaties removed - using twinkling stars instead
+
+        // Draw twinkling star (exact hamam style - 4-point sparkle with fading rays)
+        function drawTwinklingStar(star, alpha) {
+            const px = star.x * PIXEL_SIZE;
+            const py = star.y * PIXEL_SIZE;
+            const ps = PIXEL_SIZE;
+            const c = star.color;
+
+            if (star.size === 0) {
+                // Tiny dot
+                ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`;
+                ctx.fillRect(px, py, ps, ps);
+            } else {
+                // 4-point sparkle (classic Loom style)
+                // Bright white center
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.fillRect(px, py, ps, ps);
+
+                // 4 points - colored
+                ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.8})`;
+                ctx.fillRect(px - ps, py, ps, ps); // left
+                ctx.fillRect(px + ps, py, ps, ps); // right
+                ctx.fillRect(px, py - ps, ps, ps); // top
+                ctx.fillRect(px, py + ps, ps, ps); // bottom
+
+                if (star.size >= 2) {
+                    // Extended points for larger stars
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.5})`;
+                    ctx.fillRect(px - ps * 2, py, ps, ps);
+                    ctx.fillRect(px + ps * 2, py, ps, ps);
+                    ctx.fillRect(px, py - ps * 2, ps, ps);
+                    ctx.fillRect(px, py + ps * 2, ps, ps);
+                }
+
+                if (star.size >= 3) {
+                    // Even longer points
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.3})`;
+                    ctx.fillRect(px - ps * 3, py, ps, ps);
+                    ctx.fillRect(px + ps * 3, py, ps, ps);
+                    ctx.fillRect(px, py - ps * 3, ps, ps);
+                    ctx.fillRect(px, py + ps * 3, ps, ps);
+                }
+
+                if (star.size >= 4) {
+                    // Very long points
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.2})`;
+                    ctx.fillRect(px - ps * 4, py, ps, ps);
+                    ctx.fillRect(px + ps * 4, py, ps, ps);
+                    ctx.fillRect(px, py - ps * 4, ps, ps);
+                    ctx.fillRect(px, py + ps * 4, ps, ps);
+                    ctx.fillRect(px - ps * 5, py, ps, ps);
+                    ctx.fillRect(px + ps * 5, py, ps, ps);
+                    ctx.fillRect(px, py - ps * 5, ps, ps);
+                    ctx.fillRect(px, py + ps * 5, ps, ps);
+                }
+
+                if (star.size >= 5) {
+                    // Huge stars - very long rays
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.15})`;
+                    for (let r = 6; r <= 8; r++) {
+                        ctx.fillRect(px - ps * r, py, ps, ps);
+                        ctx.fillRect(px + ps * r, py, ps, ps);
+                        ctx.fillRect(px, py - ps * r, ps, ps);
+                        ctx.fillRect(px, py + ps * r, ps, ps);
+                    }
+                }
+
+                if (star.size >= 6) {
+                    // Giant stars
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.1})`;
+                    for (let r = 9; r <= 11; r++) {
+                        ctx.fillRect(px - ps * r, py, ps, ps);
+                        ctx.fillRect(px + ps * r, py, ps, ps);
+                        ctx.fillRect(px, py - ps * r, ps, ps);
+                        ctx.fillRect(px, py + ps * r, ps, ps);
+                    }
+                }
+
+                if (star.size >= 7) {
+                    // Massive stars
+                    ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha * 0.07})`;
+                    for (let r = 12; r <= 15; r++) {
+                        ctx.fillRect(px - ps * r, py, ps, ps);
+                        ctx.fillRect(px + ps * r, py, ps, ps);
+                        ctx.fillRect(px, py - ps * r, ps, ps);
+                        ctx.fillRect(px, py + ps * r, ps, ps);
+                    }
+                }
+
+                // 6-spike stars: add diagonal rays
+                if (star.spikes === 6 && star.size >= 1) {
+                    const diagLen = Math.max(1, Math.floor(star.size * 0.7));
+                    for (let d = 1; d <= diagLen; d++) {
+                        const diagAlpha = alpha * 0.5 * (1 - d / (diagLen + 2));
+                        ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${diagAlpha})`;
+                        ctx.fillRect(px - ps * d, py - ps * d, ps, ps);
+                        ctx.fillRect(px + ps * d, py + ps * d, ps, ps);
+                    }
+                }
+            }
         }
 
         function drawSprite(sprite, x, y, scale, flip) {
@@ -1997,20 +2140,40 @@
                 drawMartiniGlass(kittyAtBar.drinkX, kittyAtBar.drinkY - 10, 5);
             }
 
-            // Update and draw floaties
-            for (let i = floaties.length - 1; i >= 0; i--) {
-                const f = floaties[i];
-                f.y -= f.speed;
-                f.wobble += f.wobbleSpeed;
-                f.x += Math.sin(f.wobble) * 0.3;
+            // Spawn and update twinkling stars (hamam style - stationary, fade in/out)
+            if (twinklingStars.length < MAX_STARS && Math.random() < STAR_SPAWN_CHANCE) {
+                twinklingStars.push(createTwinklingStar());
+            }
 
-                if (f.y < -10) {
-                    floaties.splice(i, 1);
-                    floaties.push(createFloatie());
+            for (let i = twinklingStars.length - 1; i >= 0; i--) {
+                const star = twinklingStars[i];
+                star.life++;
+
+                // Calculate alpha: fade in, twinkle, fade out
+                const lifeProgress = star.life / star.maxLife;
+                let baseAlpha;
+                if (lifeProgress < 0.15) {
+                    // Fade in
+                    baseAlpha = lifeProgress / 0.15;
+                } else if (lifeProgress > 0.7) {
+                    // Fade out
+                    baseAlpha = (1 - lifeProgress) / 0.3;
                 } else {
-                    drawFloatie(f);
+                    baseAlpha = 1;
+                }
+                // Smooth, subtle twinkle - multiple slow waves combined (from hamam)
+                const twinkle1 = Math.sin(star.life * star.twinkleSpeed + star.twinkleOffset);
+                const twinkle2 = Math.sin(star.life * star.twinkleSpeed * 0.7 + star.twinkleOffset * 1.3);
+                const twinkle = (twinkle1 + twinkle2 * 0.5) / 1.5;
+                const alpha = baseAlpha * star.brightness * (twinkle * 0.15 + 0.85);
+
+                drawTwinklingStar(star, alpha);
+
+                if (star.life >= star.maxLife) {
+                    twinklingStars.splice(i, 1);
                 }
             }
+
 
             // Random colorful sparkles that pop in and out
             if (Math.random() < 0.15) {
