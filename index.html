@@ -38,7 +38,6 @@
         window.addEventListener('resize', () => {
             resize();
             if (typeof updatePolePosition === 'function') updatePolePosition();
-            if (typeof generateStars === 'function') generateStars();
         });
 
         // Colors
@@ -161,33 +160,121 @@
             [0,0,0,0,0,4,0,4,0,0,0],
         ];
 
-        // Bottle sprites for bar shelf
-        const BOTTLE_TALL = [
+        // Bottle sprites for bar shelf - detailed with caps and labels
+        // 1 = body, 2 = cap, 3 = label, 4 = label accent
+        const BOTTLE_TALL_SLIM = [
+            [0,2,0],
             [0,1,0],
             [0,1,0],
-            [1,1,1],
-            [1,1,1],
-            [1,1,1],
-            [1,1,1],
-            [1,1,1],
+            [0,1,0],
+            [0,3,0],
+            [0,3,0],
+            [0,1,0],
+            [0,1,0],
         ];
-        const BOTTLE_SHORT = [
-            [0,1,0],
-            [1,1,1],
-            [1,1,1],
-            [1,1,1],
-            [1,1,1],
+        const BOTTLE_TALL_WIDE = [
+            [0,0,2,2,0,0],
+            [0,0,1,1,0,0],
+            [0,1,1,1,1,0],
+            [0,1,3,3,1,0],
+            [0,1,3,3,1,0],
+            [0,1,3,3,1,0],
+            [0,1,1,1,1,0],
+            [0,1,1,1,1,0],
         ];
-        const BOTTLE_WIDE = [
+        const BOTTLE_MEDIUM = [
+            [0,2,2,0],
+            [0,1,1,0],
+            [1,1,1,1],
+            [1,3,3,1],
+            [1,3,3,1],
+            [1,1,1,1],
+            [1,1,1,1],
+        ];
+        const BOTTLE_SHORT_WIDE = [
+            [0,0,2,0,0],
+            [0,0,1,0,0],
+            [0,1,1,1,0],
+            [1,1,3,1,1],
+            [1,1,3,1,1],
+            [0,1,1,1,0],
+        ];
+        const BOTTLE_ROUND = [
+            [0,0,2,0,0],
             [0,0,1,0,0],
             [0,1,1,1,0],
             [1,1,1,1,1],
+            [1,3,3,3,1],
             [1,1,1,1,1],
-            [1,1,1,1,1],
+            [0,1,1,1,0],
+        ];
+        const BOTTLE_SQUARE = [
+            [0,2,2,0],
+            [0,1,1,0],
+            [1,1,1,1],
+            [1,3,3,1],
+            [1,4,4,1],
+            [1,1,1,1],
+        ];
+        const BOTTLE_TINY = [
+            [2,0],
+            [1,0],
+            [1,0],
+            [3,0],
+            [1,0],
+        ];
+        const BOTTLE_FLASK = [
+            [0,2,2,0],
+            [0,1,1,0],
+            [1,1,1,1],
+            [1,1,1,1],
+            [1,3,3,1],
+            [0,1,1,0],
+            [0,1,1,0],
+        ];
+        const BOTTLE_WINE = [
+            [0,2,0],
+            [0,1,0],
+            [0,1,0],
+            [1,1,1],
+            [1,1,1],
+            [1,3,1],
+            [1,1,1],
+            [1,1,1],
+        ];
+        const BOTTLE_CHAMPAGNE = [
+            [0,2,0],
+            [0,1,0],
+            [0,1,0],
+            [0,1,0],
+            [1,1,1],
+            [1,3,1],
+            [1,1,1],
         ];
 
-        // Bottle colors - more variety
-        const BOTTLE_COLOR_OPTIONS = ['#2d5a27', '#8b4513', '#4169e1', '#dc143c', '#ffd700', '#9932cc', '#00ced1', '#ff6347', '#32cd32', '#c0c0c0'];
+        // 20 unique bottle types with their colors
+        const BOTTLE_TYPES = [
+            { sprite: BOTTLE_TALL_WIDE, body: '#1a4d1a', cap: '#2a2a2a', label: '#d4c4a0', accent: '#1a4d1a' },  // Jager
+            { sprite: BOTTLE_TALL_SLIM, body: '#e8e8e8', cap: '#cc2222', label: '#cc2222', accent: '#cc2222' },  // Vodka
+            { sprite: BOTTLE_MEDIUM, body: '#8b5a00', cap: '#2a2a2a', label: '#1a1a1a', accent: '#ffd700' },     // Whiskey
+            { sprite: BOTTLE_SHORT_WIDE, body: '#3d1a00', cap: '#8b0000', label: '#d4c4a0', accent: '#d4c4a0' }, // Kahlua
+            { sprite: BOTTLE_MEDIUM, body: '#00aa44', cap: '#2a2a2a', label: '#ffdd00', accent: '#ffdd00' },     // Gin
+            { sprite: BOTTLE_SQUARE, body: '#f0e8d8', cap: '#8b4513', label: '#ffd700', accent: '#ffd700' },     // Tequila
+            { sprite: BOTTLE_TALL_WIDE, body: '#004060', cap: '#c0c0c0', label: '#ffffff', accent: '#004060' },  // Blue Curacao
+            { sprite: BOTTLE_ROUND, body: '#4a1a00', cap: '#ffd700', label: '#ffd700', accent: '#ffffff' },      // Dark Rum
+            { sprite: BOTTLE_WINE, body: '#4a0020', cap: '#2a2a2a', label: '#c0a080', accent: '#c0a080' },       // Red Wine
+            { sprite: BOTTLE_CHAMPAGNE, body: '#2a4a2a', cap: '#ffd700', label: '#ffd700', accent: '#ffd700' },  // Champagne
+            { sprite: BOTTLE_FLASK, body: '#c0c0c0', cap: '#2a2a2a', label: '#4169e1', accent: '#4169e1' },      // Flask
+            { sprite: BOTTLE_TINY, body: '#ff6347', cap: '#2a2a2a', label: '#ffffff', accent: '#ffffff' },       // Hot sauce
+            { sprite: BOTTLE_ROUND, body: '#ff1493', cap: '#ff69b4', label: '#ffffff', accent: '#ffffff' },      // Pink liqueur
+            { sprite: BOTTLE_TALL_SLIM, body: '#00ced1', cap: '#008b8b', label: '#ffffff', accent: '#ffffff' },  // Blue vodka
+            { sprite: BOTTLE_SQUARE, body: '#8b0000', cap: '#ffd700', label: '#ffd700', accent: '#ffffff' },     // Campari
+            { sprite: BOTTLE_MEDIUM, body: '#9932cc', cap: '#4b0082', label: '#e6e6fa', accent: '#e6e6fa' },     // Purple
+            { sprite: BOTTLE_SHORT_WIDE, body: '#228b22', cap: '#006400', label: '#90ee90', accent: '#90ee90' }, // Midori
+            { sprite: BOTTLE_WINE, body: '#f5f5dc', cap: '#daa520', label: '#daa520', accent: '#daa520' },       // White wine
+            { sprite: BOTTLE_FLASK, body: '#cd853f', cap: '#8b4513', label: '#ffe4c4', accent: '#ffe4c4' },      // Cognac
+            { sprite: BOTTLE_TINY, body: '#32cd32', cap: '#006400', label: '#ffffff', accent: '#ffffff' },       // Bitters
+        ];
 
         // Martini glass sprite
         const MARTINI_GLASS = [
@@ -229,22 +316,32 @@
         // Kitty bar visit state
         let kittyAtBar = {
             visiting: false,
-            hasDrink: false,
-            pickedUp: false,
-            returning: false,
+            drinkOnBar: false,      // full drink waiting on counter
+            emptyGlassOnBar: false, // empty glass left by Kitty
+            pickedUp: false,        // Kitty has the drink
+            returning: false,       // Kitty walking back to return glass
             drinkX: 0,
             drinkY: 0,
             drinkTimer: 0,
             cooldown: 200,  // start soon
         };
 
-        // Generate bottles for the shelf - more bottles!
+        // Bartender cleaning state
+        let bartenderCleaning = {
+            active: false,
+            timer: 0,
+        };
+
+        // Generate bottles for the shelf (21 bottles: 3 shelves × 7 per shelf)
         const barBottles = [];
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 21; i++) {
+            const bottleType = BOTTLE_TYPES[Math.floor(Math.random() * BOTTLE_TYPES.length)];
             barBottles.push({
-                sprite: [BOTTLE_TALL, BOTTLE_SHORT, BOTTLE_WIDE][Math.floor(Math.random() * 3)],
-                color: BOTTLE_COLOR_OPTIONS[Math.floor(Math.random() * BOTTLE_COLOR_OPTIONS.length)],
-                x: i * 12,
+                sprite: bottleType.sprite,
+                body: bottleType.body,
+                cap: bottleType.cap,
+                label: bottleType.label,
+                accent: bottleType.accent,
             });
         }
 
@@ -930,54 +1027,42 @@
             bendTimer: 0,
         };
 
-        // Stars (exact hamam style - permanent, twinkling)
+        // Stars - sparse, fade in/out style
         let stars = [];
+        const MAX_STARS = 125;
+        const STAR_SPAWN_CHANCE = 0.04;  // faster spawn
 
         // Star varieties - warm golds and whites for club sparkle
         const STAR_VARIETIES = [
-            { color: [255, 215, 0], name: 'gold' },             // 0: gold
-            { color: [255, 223, 100], name: 'light-gold' },     // 1: light gold
-            { color: [255, 200, 50], name: 'deep-gold' },       // 2: deep gold
-            { color: [255, 255, 255], name: 'white' },          // 3: pure white
-            { color: [255, 250, 240], name: 'warm-white' },     // 4: warm white
-            { color: [255, 255, 200], name: 'yellow-white' },   // 5: yellow white
-            { color: [255, 245, 180], name: 'pale-gold' },      // 6: pale gold
-            { color: [255, 230, 150], name: 'champagne' },      // 7: champagne
-            { color: [255, 220, 120], name: 'amber' },          // 8: amber
-            { color: [255, 255, 220], name: 'cream' },          // 9: cream
-            { color: [255, 240, 200], name: 'butter' },         // 10: butter
-            { color: [255, 250, 220], name: 'vanilla' },        // 11: vanilla
-            { color: [255, 235, 180], name: 'soft-gold' },      // 12: soft gold
-            { color: [255, 225, 140], name: 'honey' },          // 13: honey
-            { color: [255, 255, 240], name: 'ivory' },          // 14: ivory
-            { color: [255, 210, 180], name: 'peach' },          // 15: peach
-            { color: [255, 200, 200], name: 'blush' },          // 16: blush
-            { color: [255, 220, 200], name: 'rose-gold' },      // 17: rose gold
-            { color: [255, 240, 230], name: 'pearl' },          // 18: pearl
-            { color: [255, 252, 250], name: 'snow' },           // 19: snow white
+            { color: [255, 215, 0], name: 'gold' },
+            { color: [255, 223, 100], name: 'light-gold' },
+            { color: [255, 255, 255], name: 'white' },
+            { color: [255, 250, 240], name: 'warm-white' },
+            { color: [255, 255, 200], name: 'yellow-white' },
+            { color: [255, 245, 180], name: 'pale-gold' },
+            { color: [255, 230, 150], name: 'champagne' },
+            { color: [255, 220, 120], name: 'amber' },
+            { color: [255, 252, 250], name: 'snow' },
         ];
 
-        // Generate stars (called after resize)
-        function generateStars() {
-            stars = [];
-            // 80 stars for good coverage
-            for (let i = 0; i < 80; i++) {
-                const sizeRoll = Math.random();
-                const variety = Math.floor(Math.random() * 20);
-                stars.push({
-                    x: Math.random() * cols,
-                    y: Math.random() * rows * 0.6,  // upper 60% of screen
-                    brightness: 0.4 + Math.random() * 0.6,
-                    twinkleSpeed: 0.08 + Math.random() * 0.25,
-                    twinkleOffset: Math.random() * Math.PI * 2,
-                    size: sizeRoll < 0.35 ? 0 : (sizeRoll < 0.50 ? 1 : (sizeRoll < 0.65 ? 2 : (sizeRoll < 0.78 ? 3 : (sizeRoll < 0.88 ? 4 : (sizeRoll < 0.94 ? 5 : (sizeRoll < 0.98 ? 6 : 7)))))),
-                    variety: variety,
-                    color: STAR_VARIETIES[variety].color,
-                    spikes: Math.random() < 0.12 ? 6 : 4,
-                });
-            }
+        function createStar() {
+            const sizeRoll = Math.random();
+            const variety = Math.floor(Math.random() * STAR_VARIETIES.length);
+            // Avoid bar area (left side of screen)
+            const minX = 60;  // bar ends around x=55 in grid units
+            return {
+                x: minX + Math.random() * (cols - minX),
+                y: Math.random() * rows * 0.5,  // upper half
+                brightness: 0.5 + Math.random() * 0.5,
+                twinkleSpeed: 0.05 + Math.random() * 0.15,
+                twinkleOffset: Math.random() * Math.PI * 2,
+                life: 0,
+                maxLife: 400 + Math.random() * 600,  // 7-17 seconds at 60fps
+                size: sizeRoll < 0.4 ? 0 : (sizeRoll < 0.6 ? 1 : (sizeRoll < 0.8 ? 2 : (sizeRoll < 0.92 ? 3 : 4))),
+                color: STAR_VARIETIES[variety].color,
+                spikes: Math.random() < 0.15 ? 6 : 4,
+            };
         }
-        generateStars();
 
         // Floating objects (keeping for other things if needed)
         let floaties = [];
@@ -2006,79 +2091,174 @@
             // Draw the bar area on the left
             const barX = 20;
             const barY = canvas.height * 0.45;
-            const barWidth = 180;
+            const barWidth = 200;
             const barHeight = canvas.height * 0.55;
 
-            // Bar back wall - dark wood
-            ctx.fillStyle = '#1a0a00';
-            ctx.fillRect(barX, barY - 120, barWidth, barHeight + 120);
+            // Bar back wall - rich wood paneling (stops at foot rail)
+            const backWallHeight = 280;  // from barY-180 to barY+100 (foot rail)
+            ctx.fillStyle = '#2a1a0a';
+            ctx.fillRect(barX, barY - 180, barWidth, backWallHeight);
 
-            // Shelves with bottles - more bottles per shelf
+            // Wood grain vertical stripes
+            for (let i = 0; i < 12; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#3d2510' : '#2a1a0a';
+                ctx.fillRect(barX + i * 17, barY - 180, 17, backWallHeight);
+            }
+
+            // Decorative top molding
+            ctx.fillStyle = '#5a3a1a';
+            ctx.fillRect(barX - 5, barY - 185, barWidth + 10, 8);
+            ctx.fillStyle = '#6a4a2a';
+            ctx.fillRect(barX - 5, barY - 185, barWidth + 10, 3);
+
+            // Hanging lights at top (higher up)
+            for (let i = 0; i < 5; i++) {
+                const lightX = barX + 20 + i * 38;
+                const lightY = barY - 170;
+                // Wire
+                ctx.fillStyle = '#333';
+                ctx.fillRect(lightX + 4, lightY - 15, 2, 15);
+                // Bulb glow
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(lightX + 5, lightY + 5, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Shelves with bottles - 3 shelves
             for (let shelf = 0; shelf < 3; shelf++) {
-                const shelfY = barY - 100 + shelf * 35;
-                // Shelf
-                ctx.fillStyle = '#3d2817';
-                ctx.fillRect(barX + 5, shelfY, barWidth - 10, 4);
+                const shelfY = barY - 120 + shelf * 38;
+                // Shelf bracket
+                ctx.fillStyle = '#4a2a15';
+                ctx.fillRect(barX + 5, shelfY, barWidth - 10, 6);
+                // Shelf top highlight
+                ctx.fillStyle = '#6a4a2a';
+                ctx.fillRect(barX + 5, shelfY, barWidth - 10, 2);
 
-                // Bottles on this shelf - 5 per shelf now
-                for (let b = 0; b < 5; b++) {
-                    const bottle = barBottles[shelf * 5 + b] || barBottles[b % barBottles.length];
-                    const bx = barX + 12 + b * 32;
-                    const by = shelfY - bottle.sprite.length * 2.5;
-                    ctx.fillStyle = bottle.color;
+                // Bottles on this shelf - 7 per shelf
+                for (let b = 0; b < 7; b++) {
+                    const bottle = barBottles[shelf * 7 + b] || barBottles[b % barBottles.length];
+                    const bx = barX + 10 + b * 27;
+                    const by = shelfY - bottle.sprite.length * 3;
+                    const ps = 3;  // pixel size for bottles
                     for (let row = 0; row < bottle.sprite.length; row++) {
                         for (let col = 0; col < bottle.sprite[row].length; col++) {
-                            if (bottle.sprite[row][col] === 0) continue;
-                            ctx.fillRect(bx + col * 2.5, by + row * 2.5, 2.5, 2.5);
+                            const pixel = bottle.sprite[row][col];
+                            if (pixel === 0) continue;
+                            // Color based on pixel value: 1=body, 2=cap, 3=label, 4=accent
+                            if (pixel === 1) ctx.fillStyle = bottle.body;
+                            else if (pixel === 2) ctx.fillStyle = bottle.cap;
+                            else if (pixel === 3) ctx.fillStyle = bottle.label;
+                            else if (pixel === 4) ctx.fillStyle = bottle.accent;
+                            ctx.fillRect(bx + col * ps, by + row * ps, ps, ps);
                         }
                     }
                     // Bottle shine
-                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                    ctx.fillRect(bx + 2, by + 4, 1.5, bottle.sprite.length * 1.5);
+                    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                    ctx.fillRect(bx + ps, by + ps * 2, ps * 0.7, bottle.sprite.length * ps * 0.6);
                 }
             }
 
-            // Bar counter top
-            ctx.fillStyle = '#2d1810';
-            ctx.fillRect(barX, barY, barWidth + 20, 12);
-            // Counter front
-            ctx.fillStyle = '#1a0a00';
-            ctx.fillRect(barX, barY + 12, barWidth + 20, barHeight - 12);
-            // Counter edge highlight
-            ctx.fillStyle = '#4a2a1a';
-            ctx.fillRect(barX, barY, barWidth + 20, 3);
+            // Update and draw bartender (BEFORE counter so she's behind it)
+            bartender.x = barX / PIXEL_SIZE + 25;
+            bartender.y = (barY - 60) / PIXEL_SIZE;
 
-            // Neon bar light accent
-            ctx.shadowColor = '#ff1493';
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = '#ff1493';
-            ctx.fillRect(barX + 10, barY - 105, barWidth - 20, 2);
-            ctx.shadowBlur = 0;
-
-            // Update bartender position
-            bartender.x = barX / PIXEL_SIZE + 12;
-            bartender.y = (barY - 45) / PIXEL_SIZE;
-
-            // Hello Kitty bar visit logic
-            kittyAtBar.cooldown--;
-            if (!kittyAtBar.visiting && kittyAtBar.cooldown <= 0 && Math.random() < 0.003) {
-                kittyAtBar.visiting = true;
-                kittyAtBar.hasDrink = false;
-                kittyAtBar.pickedUp = false;
-                kittyAtBar.drinkTimer = 0;
-                bartender.makingDrink = true;
-                bartender.drinkTimer = 0;
-            }
-
-            // Update bartender animation
             bartender.frameTimer++;
             if (bartender.frameTimer > 15) {
                 bartender.frameTimer = 0;
                 bartender.frame = (bartender.frame + 1) % BARTENDER_POSES[bartender.poseIndex].frames.length;
             }
 
+            const bartenderPose = BARTENDER_POSES[bartender.poseIndex];
+            const bartenderSprite = bartenderPose.frames[bartender.frame % bartenderPose.frames.length];
+            drawBartender(bartenderSprite, bartender.x, bartender.y, bartender.scale, false);
+
+            // Bar counter top - rich wood with edge
+            ctx.fillStyle = '#5a3520';
+            ctx.fillRect(barX - 10, barY + 15, barWidth + 30, 18);
+            // Counter top surface
+            ctx.fillStyle = '#6a4530';
+            ctx.fillRect(barX - 10, barY + 15, barWidth + 30, 6);
+            // Edge highlight
+            ctx.fillStyle = '#7a5540';
+            ctx.fillRect(barX - 10, barY + 15, barWidth + 30, 2);
+
+            // Counter front - vertical wood panels (ends at foot rail)
+            const counterHeight = 67;  // stops at foot rail
+            ctx.fillStyle = '#3a2010';
+            ctx.fillRect(barX - 10, barY + 33, barWidth + 30, counterHeight);
+            // Wood grain on counter front
+            for (let i = 0; i < 8; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#4a2a15' : '#3a2010';
+                ctx.fillRect(barX - 10 + i * 28, barY + 33, 28, counterHeight);
+            }
+            // Counter front top edge
+            ctx.fillStyle = '#5a3a20';
+            ctx.fillRect(barX - 10, barY + 33, barWidth + 30, 4);
+
+            // Bar stools (2 stools)
+            for (let stool = 0; stool < 2; stool++) {
+                const stoolX = barX + 40 + stool * 90;
+                const stoolY = barY + 80;
+                // Stool post (gold)
+                ctx.fillStyle = '#b8860b';
+                ctx.fillRect(stoolX + 8, stoolY, 6, 60);
+                // Post shine
+                ctx.fillStyle = '#daa520';
+                ctx.fillRect(stoolX + 9, stoolY, 2, 60);
+                // Stool base
+                ctx.fillStyle = '#8b7355';
+                ctx.fillRect(stoolX, stoolY + 58, 22, 6);
+                // Seat (round-ish)
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(stoolX - 2, stoolY - 8, 26, 12);
+                ctx.fillStyle = '#a0522d';
+                ctx.fillRect(stoolX, stoolY - 6, 22, 8);
+                // Seat highlight
+                ctx.fillStyle = '#cd853f';
+                ctx.fillRect(stoolX + 2, stoolY - 4, 18, 3);
+            }
+
+            // Foot rail (brass)
+            ctx.fillStyle = '#b8860b';
+            ctx.fillRect(barX, barY + 100, barWidth + 10, 4);
+            ctx.fillStyle = '#daa520';
+            ctx.fillRect(barX, barY + 100, barWidth + 10, 1);
+
+            // Hello Kitty bar visit logic
+            kittyAtBar.cooldown--;
+            if (!kittyAtBar.visiting && kittyAtBar.cooldown <= 0 && Math.random() < 0.003) {
+                kittyAtBar.visiting = true;
+                kittyAtBar.drinkOnBar = false;
+                kittyAtBar.pickedUp = false;
+                kittyAtBar.drinkTimer = 0;
+                // If there's an empty glass, bartender cleans it first
+                if (kittyAtBar.emptyGlassOnBar) {
+                    bartenderCleaning.active = true;
+                    bartenderCleaning.timer = 0;
+                } else {
+                    bartender.makingDrink = true;
+                    bartender.drinkTimer = 0;
+                }
+            }
+
+            // Bartender cleaning empty glass first
+            if (bartenderCleaning.active) {
+                bartenderCleaning.timer++;
+                bartender.poseIndex = 0; // idle/cleaning pose
+                if (bartenderCleaning.timer > 60) {
+                    // Done cleaning, now make new drink
+                    bartenderCleaning.active = false;
+                    kittyAtBar.emptyGlassOnBar = false;
+                    bartender.makingDrink = true;
+                    bartender.drinkTimer = 0;
+                }
+            }
             // Bartender makes drink when Kitty visits - shake then pour
-            if (bartender.makingDrink) {
+            else if (bartender.makingDrink) {
                 bartender.drinkTimer++;
                 if (bartender.drinkTimer < 90) {
                     // Shaking the cocktail shaker
@@ -2089,7 +2269,7 @@
                 } else {
                     // Done - drink ready on counter
                     bartender.makingDrink = false;
-                    kittyAtBar.hasDrink = true;
+                    kittyAtBar.drinkOnBar = true;
                     kittyAtBar.drinkX = barX + barWidth - 30;
                     kittyAtBar.drinkY = barY - 20;
                 }
@@ -2101,11 +2281,6 @@
                     bartender.frame = 0;
                 }
             }
-
-            // Draw bartender
-            const bartenderPose = BARTENDER_POSES[bartender.poseIndex];
-            const bartenderSprite = bartenderPose.frames[bartender.frame % bartenderPose.frames.length];
-            drawBartender(bartenderSprite, bartender.x, bartender.y, bartender.scale, false);
 
             // Function to draw the martini glass at any position
             function drawMartiniGlass(x, y, scale) {
@@ -2138,22 +2313,61 @@
                 ctx.fillRect(x + s * 3, y + s * 0.8, s * 0.6, s * 0.6);
             }
 
-            // Draw martini on counter when ready (only if not picked up yet)
-            if (kittyAtBar.hasDrink && kittyAtBar.visiting && !kittyAtBar.pickedUp) {
-                drawMartiniGlass(kittyAtBar.drinkX, kittyAtBar.drinkY - 10, 5);
+            // Draw martini on counter when ready (full drink waiting)
+            if (kittyAtBar.drinkOnBar && !kittyAtBar.pickedUp) {
+                drawMartiniGlass(kittyAtBar.drinkX, kittyAtBar.drinkY + 5, 5);
             }
 
-            // Draw all stars (hamam style - permanent, continuous twinkle)
-            const now = Date.now() / 1000;  // time in seconds for smooth animation
-            stars.forEach(star => {
-                // Smooth, subtle twinkle - multiple slow waves combined (from hamam)
-                const twinkle1 = Math.sin(now * star.twinkleSpeed + star.twinkleOffset);
-                const twinkle2 = Math.sin(now * star.twinkleSpeed * 0.7 + star.twinkleOffset * 1.3);
-                const twinkle = (twinkle1 + twinkle2 * 0.5) / 1.5;
-                const alpha = star.brightness * (twinkle * 0.15 + 0.85);
+            // Draw empty glass on counter (after Kitty returns it)
+            if (kittyAtBar.emptyGlassOnBar && !bartenderCleaning.active) {
+                // Empty martini glass (no liquid, no olive)
+                const x = kittyAtBar.drinkX;
+                const y = kittyAtBar.drinkY + 5;
+                const s = 5;
+                ctx.fillStyle = '#c0c0c0';
+                ctx.fillRect(x, y, s * 7, s);
+                ctx.fillRect(x + s, y + s, s, s);
+                ctx.fillRect(x + s * 2, y + s * 2, s, s);
+                ctx.fillRect(x + s * 3, y + s * 3, s, s);
+                ctx.fillRect(x + s * 5, y + s, s, s);
+                ctx.fillRect(x + s * 4, y + s * 2, s, s);
+                ctx.fillRect(x + s * 3, y + s * 4, s, s * 2);
+                ctx.fillRect(x + s * 2, y + s * 6, s * 3, s);
+            }
+
+            // Spawn stars slowly
+            if (stars.length < MAX_STARS && Math.random() < STAR_SPAWN_CHANCE) {
+                stars.push(createStar());
+            }
+
+            // Update and draw stars with fade in/out
+            for (let i = stars.length - 1; i >= 0; i--) {
+                const star = stars[i];
+                star.life++;
+
+                // Calculate fade: slow fade in, hold, slow fade out
+                const progress = star.life / star.maxLife;
+                let fadeAlpha;
+                if (progress < 0.2) {
+                    // Fade in (first 20%)
+                    fadeAlpha = progress / 0.2;
+                } else if (progress > 0.75) {
+                    // Fade out (last 25%)
+                    fadeAlpha = (1 - progress) / 0.25;
+                } else {
+                    fadeAlpha = 1;
+                }
+
+                // Subtle twinkle
+                const twinkle = Math.sin(star.life * star.twinkleSpeed + star.twinkleOffset);
+                const alpha = fadeAlpha * star.brightness * (twinkle * 0.1 + 0.9);
 
                 drawStar(star, alpha);
-            });
+
+                if (star.life >= star.maxLife) {
+                    stars.splice(i, 1);
+                }
+            }
 
 
             // Random sparkles disabled
@@ -2475,11 +2689,11 @@
                 kitty.frame = (kitty.frame + 1) % KITTY_POSES[kitty.poseIndex].frames.length;
             }
 
-            // Hello Kitty going to bar for martini - only when drink is ready!
-            if (kittyAtBar.visiting && kittyAtBar.hasDrink && !kittyAtBar.pickedUp) {
-                // Walk toward the bar (drink is ready on counter)
-                const barTargetX = (kittyAtBar.drinkX + 20) / PIXEL_SIZE;
-                const barTargetY = (kittyAtBar.drinkY + 30) / PIXEL_SIZE;
+            // Hello Kitty going to bar for martini - only when drink is ready on counter!
+            if (kittyAtBar.visiting && kittyAtBar.drinkOnBar && !kittyAtBar.pickedUp) {
+                // Walk to the right side of the bar (customer side) to pick up drink
+                const barTargetX = (barX + barWidth + 50) / PIXEL_SIZE;
+                const barTargetY = (barY + 50) / PIXEL_SIZE;
                 const dx = barTargetX - kitty.x;
                 const dy = barTargetY - kitty.y;
 
@@ -2488,9 +2702,10 @@
                 kitty.y += Math.sign(dy) * 0.3;
                 kitty.flip = dx < 0;
 
-                // If close to bar, pick it up!
+                // If close to bar, pick up the drink from the counter!
                 if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
                     kittyAtBar.pickedUp = true;
+                    kittyAtBar.drinkOnBar = false; // drink no longer on bar
                     kittyAtBar.drinkTimer = 0;
                     kitty.poseIndex = 5; // drinking pose
                     // Start moving away from bar with drink
@@ -2563,9 +2778,9 @@
                     kittyAtBar.returning = true;
                 }
             } else if (kittyAtBar.returning) {
-                // Walk back to bar to return glass (still holding it)
-                const barTargetX = (kittyAtBar.drinkX + 20) / PIXEL_SIZE;
-                const barTargetY = (kittyAtBar.drinkY + 30) / PIXEL_SIZE;
+                // Walk back to the right side of the bar to return empty glass
+                const barTargetX = (barX + barWidth + 50) / PIXEL_SIZE;
+                const barTargetY = (barY + 50) / PIXEL_SIZE;
                 const dx = barTargetX - kitty.x;
                 const dy = barTargetY - kitty.y;
 
@@ -2574,15 +2789,14 @@
                 kitty.y += Math.sign(dy) * 0.25;
                 kitty.flip = dx < 0;
 
-                // If back at bar, put glass down
+                // If back at bar, put empty glass down on counter
                 if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
                     kittyAtBar.pickedUp = false;
                     kittyAtBar.returning = false;
-                    kittyAtBar.hasDrink = false;
+                    kittyAtBar.emptyGlassOnBar = true; // empty glass now on counter
                     kittyAtBar.drinkTimer = 0;
-                    // Bartender starts making new drink
-                    bartender.makingDrink = true;
-                    bartender.drinkTimer = 0;
+                    kittyAtBar.visiting = false; // visit complete
+                    kittyAtBar.cooldown = 300 + Math.random() * 200; // wait before next visit
                 }
             } else if (KITTY_POSES[kitty.poseIndex].name === 'walking' || KITTY_POSES[kitty.poseIndex].name === 'drinking') {
                 // Normal walking - check for money
