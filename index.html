@@ -514,20 +514,38 @@
             [0,0,0,0,0,4,0,0,0,1,0,0],
             [0,0,0,0,0,0,0,0,0,0,4,0],
         ];
-        const ANNA_POLE_CLIMB = [
-            [0,0,0,0,4,0,4,0,0,0],
-            [0,0,0,0,1,0,1,0,0,0],
-            [0,14,15,4,4,4,15,14,0,0],
-            [14,14,4,14,14,14,4,14,14,0],
-            [0,0,4,1,1,1,4,0,0,0],
-            [0,0,4,1,1,1,4,0,0,0],
-            [0,0,0,4,1,4,0,0,0,0],
-            [0,0,0,13,1,13,0,0,0,0],
-            [0,0,4,13,13,13,4,0,0,0],
-            [0,0,0,4,13,4,1,0,0,0],
-            [0,0,0,1,0,0,0,0,0,0],
-            [0,0,0,4,0,0,0,0,0,0],
+        // Climb frame 1 - legs bent/hugging pole, arms reaching up
+        const ANNA_POLE_CLIMB_1 = [
+            [0,0,0,0,4,0,4,0,0,0],  // hands reaching up
+            [0,0,0,0,1,0,1,0,0,0],  // arms
+            [0,14,15,4,4,4,15,14,0,0],  // hair
+            [14,14,4,14,14,14,4,14,14,0],  // hair
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,0,4,1,4,0,0,0,0],  // neck
+            [0,0,0,13,1,13,0,0,0,0],  // shoulders
+            [0,0,4,13,13,13,4,0,0,0],  // body
+            [0,0,0,4,13,4,0,0,0,0],  // body
+            [0,0,0,1,0,1,0,0,0,0],  // thighs bent
+            [0,0,4,0,0,0,4,0,0,0],  // knees out (hugging pole)
         ];
+        // Climb frame 2 - legs pulling up, arms bent
+        const ANNA_POLE_CLIMB_2 = [
+            [0,0,0,4,0,4,0,0,0,0],  // hands on pole
+            [0,0,0,1,0,1,0,0,0,0],  // arms bent
+            [0,14,15,4,4,4,15,14,0,0],  // hair
+            [14,14,4,14,14,14,4,14,14,0],  // hair
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,0,4,1,4,0,0,0,0],  // neck
+            [0,0,0,13,1,13,0,0,0,0],  // shoulders
+            [0,0,4,13,13,13,4,0,0,0],  // body
+            [0,0,1,4,13,4,1,0,0,0],  // body with legs starting
+            [0,0,0,1,0,1,0,0,0,0],  // legs coming up
+            [0,0,0,4,0,4,0,0,0,0],  // feet
+        ];
+        // Keep old climb for reference (commented out)
+        const ANNA_POLE_CLIMB = ANNA_POLE_CLIMB_1;
         const ANNA_POLE_HOLD = [
             [0,14,15,4,4,4,15,14,0,0],
             [14,14,4,14,14,14,4,14,14,0],
@@ -571,7 +589,7 @@
             [0,0,0,14,14,4,14,14,14,4,14,0],
             [0,0,0,0,14,15,4,4,4,15,14,0],
         ];
-        // Pole slide down pose
+        // Pole slide down pose - front view, legs straight
         const ANNA_POLE_SLIDE = [
             [0,14,15,4,4,4,15,14,0,0],
             [14,14,4,14,14,14,4,14,14,0],
@@ -979,6 +997,57 @@
             { name: 'walking', frames: [ANNA_WALK_1, ANNA_WALK_2], duration: 4000 },
         ];
 
+        // Pole dancing poses organized by type
+        // type: 'standing' (normal Y), 'elevated' (higher on pole), 'inverted' (upside down), 'floor' (at pole base)
+        const POLE_POSES = [
+            // ACTIVE MOVES - climb and slide
+            { name: 'climb', frames: [ANNA_POLE_CLIMB_1, ANNA_POLE_CLIMB_2], duration: 15, type: 'climb' },
+            { name: 'slide', frames: [ANNA_POLE_SLIDE], duration: 10, type: 'slide' },
+            
+            /* COMMENTED OUT - other moves to tailor later
+            // Entry/Standing moves
+            { name: 'hold', frames: [ANNA_POLE_HOLD], duration: 150, type: 'standing' },
+            { name: 'lean', frames: [ANNA_POLE_LEAN], duration: 140, type: 'standing' },
+            { name: 'touch', frames: [ANNA_POLE_TOUCH], duration: 130, type: 'standing' },
+            // Spinning moves
+            { name: 'spin', frames: [ANNA_POLE_SPIN], duration: 160, type: 'elevated' },
+            { name: 'fireman', frames: [ANNA_POLE_FIREMAN], duration: 180, type: 'elevated' },
+            { name: 'sway', frames: [ANNA_POLE_SWAY], duration: 150, type: 'standing' },
+            { name: 'extend', frames: [ANNA_POLE_EXTEND], duration: 170, type: 'elevated' },
+            // Back/arch moves
+            { name: 'back', frames: [ANNA_POLE_BACK], duration: 160, type: 'elevated' },
+            { name: 'hair', frames: [ANNA_POLE_HAIR], duration: 140, type: 'standing' },
+            { name: 'leg_hook', frames: [ANNA_POLE_LEG_HOOK], duration: 180, type: 'elevated' },
+            // Inverted moves
+            { name: 'invert', frames: [ANNA_POLE_INVERT], duration: 200, type: 'inverted' },
+            { name: 'ayesha', frames: [ANNA_POLE_AYESHA], duration: 220, type: 'inverted' },
+            { name: 'allegra', frames: [ANNA_POLE_ALLEGRA], duration: 200, type: 'inverted' },
+            // Advanced aerial moves
+            { name: 'jade', frames: [ANNA_POLE_JADE], duration: 200, type: 'elevated' },
+            { name: 'superman', frames: [ANNA_POLE_SUPERMAN], duration: 220, type: 'elevated' },
+            { name: 'butterfly', frames: [ANNA_POLE_BUTTERFLY], duration: 180, type: 'elevated' },
+            { name: 'iron_x', frames: [ANNA_POLE_IRON_X], duration: 200, type: 'elevated' },
+            { name: 'brass', frames: [ANNA_POLE_BRASS], duration: 180, type: 'elevated' },
+            { name: 'stargazer', frames: [ANNA_POLE_STARGAZER], duration: 190, type: 'elevated' },
+            // Floor work
+            { name: 'bend', frames: [ANNA_POLE_BEND], duration: 150, type: 'floor' },
+            { name: 'kneel', frames: [ANNA_FLOOR_KNEEL], duration: 140, type: 'floor' },
+            { name: 'arch', frames: [ANNA_FLOOR_ARCH], duration: 160, type: 'floor' },
+            { name: 'wave', frames: [ANNA_FLOOR_WAVE], duration: 150, type: 'floor' },
+            { name: 'sit', frames: [ANNA_FLOOR_SIT], duration: 130, type: 'floor' },
+            */
+        ];
+
+        // Helper to get poses by type
+        function getPoleMovesOfType(type) {
+            return POLE_POSES.filter(p => p.type === type);
+        }
+
+        // Simple routine: climb up, then slide down
+        function generatePoleRoutine() {
+            return ['climb', 'slide'];  // Just climb then slide for now
+        }
+
         // Pole position (fixed on screen)
         const pole = {
             x: 0,  // will be set in resize
@@ -1040,6 +1109,14 @@
             bendingDown: false,
             tips: 0,  // dollar bills collected
             bendTimer: 0,
+            // Pole dancing state
+            poleDancing: false,       // is she on the pole?
+            walkingToPole: false,     // is she walking to the pole?
+            poleState: 'none',        // 'none', 'climbing', 'sliding'
+            poleSide: 'left',         // 'left' or 'right' side of pole
+            poleY: 0,                 // current Y position on pole
+            climbSpeed: 0.25,         // slower than walk speed
+            slideSpeed: 0.25,         // slower than walk speed
         };
 
         // Stars - sparse, fade in/out style
@@ -1585,6 +1662,15 @@
         // Flying dollar bills array
         let dollarBills = [];
 
+        // Start Anna's pole dancing routine
+        function startPoleDancing() {
+            if (anna.poleDancing || anna.walkingToPole) return;  // already dancing or walking
+            
+            anna.walkingToPole = true;
+            anna.poleState = 'none';  // will become 'climbing' when she reaches pole
+            anna.poleSide = 'left';  // only left side for now
+        }
+
         function throwDollarBill() {
             // Kitty throws a bill UP toward Anna/pole - trigger throwing animation
             // Don't show throwing animation if holding drink
@@ -1608,6 +1694,9 @@
                 floorTime: 0,
             };
             dollarBills.push(bill);
+            
+            // Trigger Anna to start pole dancing!
+            startPoleDancing();
         }
 
         // All sprite options - ONLY STARS!
@@ -1737,6 +1826,9 @@
 
             // Also some sparkles
             createExplosion(clickX, clickY);
+            
+            // Trigger Anna to pole dance!
+            startPoleDancing();
         });
 
         // Touch support for mobile - continuous rain while holding
@@ -2553,29 +2645,149 @@
                 }
             }
 
-            // Update Anna - walk around
+            // Update Anna - pole dancing or walking
             anna.frameTimer++;
-            if (anna.frameTimer > 12) {  // same frame rate as Kitty
-                anna.frameTimer = 0;
-                anna.frame = (anna.frame + 1) % POSES[anna.poseIndex].frames.length;
-            }
-
-            // Anna movement
+            
+            // === POLE DANCING STATE ===
+            if (anna.poleDancing) {
+                // Position Anna on left or right side of pole (tight to pole)
+                let poleX;
+                if (anna.poleSide === 'left') {
+                    poleX = pole.x - 8;  // left of pole, tight
+                    anna.flip = false;
+                } else {
+                    poleX = pole.x - 4;  // right of pole, tight
+                    anna.flip = true;
+                }
+                anna.x = poleX;
+                
+                // Get climb and slide poses
+                const climbPose = POLE_POSES.find(p => p.name === 'climb');
+                const slidePose = POLE_POSES.find(p => p.name === 'slide');
+                
+                // === CLIMBING STATE ===
+                if (anna.poleState === 'climbing') {
+                    // Animate climb frames
+                    if (anna.frameTimer > 10) {
+                        anna.frameTimer = 0;
+                        anna.frame = (anna.frame + 1) % climbPose.frames.length;
+                    }
+                    
+                    // Move up the pole
+                    anna.poleY -= anna.climbSpeed;
+                    
+                    // Reached the top?
+                    const topY = pole.topY + 15;
+                    if (anna.poleY <= topY) {
+                        anna.poleY = topY;
+                        anna.poleState = 'sliding';
+                        anna.frame = 0;
+                    }
+                    
+                    anna.y = anna.poleY;
+                    
+                    // Draw climb sprite
+                    const climbSprite = climbPose.frames[anna.frame % climbPose.frames.length];
+                    drawSprite(climbSprite, anna.x, anna.y, anna.scale, anna.flip);
+                    
+                // === SLIDING STATE ===
+                } else if (anna.poleState === 'sliding') {
+                    // Slide sprite doesn't animate (legs straight)
+                    
+                    // Move down the pole
+                    anna.poleY += anna.slideSpeed;
+                    
+                    // Reached the bottom?
+                    const bottomY = pole.bottomY - 30;
+                    if (anna.poleY >= bottomY) {
+                        anna.poleY = bottomY;
+                        // Done! Return to walking
+                        anna.poleDancing = false;
+                        anna.poleState = 'none';
+                        anna.dirX = -1;
+                        anna.dirY = 0;
+                    }
+                    
+                    anna.y = anna.poleY;
+                    
+                    // Draw slide sprite
+                    const slideSprite = slidePose.frames[0];
+                    drawSprite(slideSprite, anna.x, anna.y, anna.scale, anna.flip);
+                }
+                
+                // Sparkle effect while on pole
+                if (Math.random() < 0.1) {
+                    randomSparkles.push({
+                        x: anna.x + Math.random() * 15,
+                        y: anna.y + Math.random() * 20,
+                        sprite: [SPARKLE_4PT, SPARKLE_8PT, SPARKLE_DIAMOND][Math.floor(Math.random() * 3)],
+                        color: ['#ffd700', '#ff69b4', '#ffffff', '#ff1493'][Math.floor(Math.random() * 4)],
+                        scale: 0.3 + Math.random() * 0.4,
+                        life: 0,
+                        maxLife: 20 + Math.random() * 15,
+                    });
+                }
+                
+            // === WALKING TO POLE STATE ===
+            } else if (anna.walkingToPole) {
+                if (anna.frameTimer > 12) {
+                    anna.frameTimer = 0;
+                    anna.frame = (anna.frame + 1) % POSES[anna.poseIndex].frames.length;
+                }
+                
+                // Walk toward the correct side of the pole
+                let targetX;
+                if (anna.poleSide === 'left') {
+                    targetX = pole.x - 8;  // left side, tight
+                } else {
+                    targetX = pole.x - 4;  // right side, tight
+                }
+                const targetY = pole.bottomY - 30;  // start at bottom of pole
+                const dx = targetX - anna.x;
+                const dy = targetY - anna.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist > 5) {
+                    // Walk toward pole
+                    anna.x += (dx / dist) * anna.walkSpeed * 1.2;
+                    anna.y += (dy / dist) * anna.walkSpeed * 1.2;
+                    anna.flip = dx < 0;
+                } else {
+                    // Arrived at pole - start climbing!
+                    anna.walkingToPole = false;
+                    anna.poleDancing = true;
+                    anna.poleState = 'climbing';
+                    anna.poleY = pole.bottomY - 30;  // start at bottom
+                    anna.frame = 0;
+                    // Flip based on side (face the pole)
+                    anna.flip = (anna.poleSide === 'right');
+                }
+                
+                // Draw walking Anna
+                const pose = POSES[anna.poseIndex];
+                const sprite = pose.frames[anna.frame % pose.frames.length];
+                drawSprite(sprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+            // === NORMAL WALKING/COLLECTING STATE ===
+            } else {
+                if (anna.frameTimer > 12) {
+                    anna.frameTimer = 0;
+                    anna.frame = (anna.frame + 1) % POSES[anna.poseIndex].frames.length;
+                }
+                
                 // Check for money on floor (only react when it lands)
                 const floorBills = dollarBills.filter(b => b.onFloor);
                 const moneyOnFloor = floorBills.length > 0;
-                const moneyFloorY = rows * 0.82;  // Y position to walk at when collecting money
-                anna.collecting = moneyOnFloor;  // track if she's in collecting mode
+                const moneyFloorY = rows * 0.82;
+                anna.collecting = moneyOnFloor;
 
                 if (moneyOnFloor) {
                     // Money on floor! Walk down to collect it
                     if (anna.y < moneyFloorY - 5) {
-                        // Walk down to floor level
                         anna.y += anna.walkSpeed;
-                        anna.x += anna.dirX * anna.walkSpeed * 0.3;  // slight horizontal movement
+                        anna.x += anna.dirX * anna.walkSpeed * 0.3;
                     } else {
-                        // At floor level - walk along x-axis toward money
-                        // Find the nearest floor bill to walk toward
+                        // Find nearest floor bill
                         let nearestBill = null;
                         let nearestDist = Infinity;
                         for (const bill of floorBills) {
@@ -2587,20 +2799,16 @@
                         }
 
                         if (nearestBill) {
-                            // Walk toward nearest bill along x-axis
                             const dx = nearestBill.x - anna.x;
                             if (Math.abs(dx) > 5) {
                                 anna.dirX = Math.sign(dx);
                             }
                         }
 
-                        // Walk horizontally
                         anna.x += anna.dirX * anna.walkSpeed;
-                        // Stay at floor level
                         anna.y = moneyFloorY;
                     }
 
-                    // Only flip when direction is significant
                     if (anna.dirX < -0.3) anna.flip = true;
                     else if (anna.dirX > 0.3) anna.flip = false;
 
@@ -2609,7 +2817,6 @@
                     anna.x += anna.dirX * anna.walkSpeed;
                     anna.y += anna.dirY * anna.walkSpeed;
 
-                    // Only flip when direction is significant
                     if (anna.dirX < -0.3) anna.flip = true;
                     else if (anna.dirX > 0.3) anna.flip = false;
 
@@ -2625,7 +2832,6 @@
                         anna.dirY = Math.abs(anna.dirY);
                     }
 
-                    // Randomly change direction
                     if (Math.random() < 0.008) {
                         anna.dirX = (Math.random() - 0.5) * 2;
                         anna.dirY = (Math.random() - 0.5) * 1;
@@ -2636,14 +2842,14 @@
                 if (anna.x > cols * 0.85) anna.x = cols * 0.85;
                 if (anna.x < cols * 0.05) anna.x = cols * 0.05;
 
-                // Keep off the bar area (bar is x < 58 grid units, y > 35 grid units)
+                // Keep off the bar area
                 if (anna.x < 58 && anna.y > 35) {
                     anna.x = 58;
-                    anna.dirX = Math.abs(anna.dirX);  // bounce away from bar
+                    anna.dirX = Math.abs(anna.dirX);
                 }
 
                 // Vacuum and collect money near Anna
-                const bagX = anna.x + (anna.flip ? 6 : 19);  // bag position
+                const bagX = anna.x + (anna.flip ? 6 : 19);
                 const bagY = anna.y + 18;
 
                 for (let i = dollarBills.length - 1; i >= 0; i--) {
@@ -2653,19 +2859,16 @@
                         const dy = bill.y - bagY;
                         const dist = Math.sqrt(dx * dx + dy * dy);
 
-                        // Vacuum effect - pull money toward bag when nearby
                         if (dist < 40 && dist > 8) {
                             const pullStrength = 0.15;
                             bill.x -= dx * pullStrength;
                             bill.y -= dy * pullStrength;
-                            bill.scale *= 0.98;  // shrink as it gets sucked in
+                            bill.scale *= 0.98;
                         }
 
-                        // Collect when very close to bag
                         if (dist < 10) {
                             dollarBills.splice(i, 1);
-                            anna.tips++;  // count collected tips
-                            // Tiny pop effects
+                            anna.tips++;
                             for (let p = 0; p < 5; p++) {
                                 randomSparkles.push({
                                     x: bagX + (Math.random() - 0.5) * 8,
@@ -2681,39 +2884,39 @@
                     }
                 }
 
-            // Draw Anna with butt shake
-            const pose = POSES[anna.poseIndex];
-            const sprite = pose.frames[anna.frame % pose.frames.length];
-            let annaShakeX = 0;
-            if (anna.shakeTimer > 0) {
-                anna.shakeTimer--;
-                annaShakeX = Math.sin(anna.shakeTimer * 0.8) * 1.5;
-            }
-            drawSprite(sprite, anna.x + annaShakeX, anna.y, anna.scale, anna.flip);
-
-            // Draw handbag when collecting money
-            if (anna.collecting) {
-                const bagScale = 1.2;
-                // Position handle right at her hand (same on both sides)
-                const bagOffsetX = anna.flip ? 3 : 16;  // matched distance on both sides
-                const bagOffsetY = 14;  // at hand level
-                const shimmer = 0.85 + Math.sin(Date.now() * 0.008) * 0.15;  // subtle shine on gold
-
-                for (let row = 0; row < HANDBAG.length; row++) {
-                    for (let col = 0; col < HANDBAG[row].length; col++) {
-                        const pixel = HANDBAG[row][col];
-                        if (pixel === 0) continue;
-                        ctx.fillStyle = HANDBAG_COLORS[pixel];
-                        ctx.globalAlpha = pixel === 2 ? shimmer : 1;  // gold flap shimmers
-                        ctx.fillRect(
-                            (anna.x + bagOffsetX + col * bagScale) * PIXEL_SIZE,
-                            (anna.y + bagOffsetY + row * bagScale) * PIXEL_SIZE,
-                            PIXEL_SIZE * bagScale,
-                            PIXEL_SIZE * bagScale
-                        );
-                    }
+                // Draw Anna with butt shake
+                const pose = POSES[anna.poseIndex];
+                const sprite = pose.frames[anna.frame % pose.frames.length];
+                let annaShakeX = 0;
+                if (anna.shakeTimer > 0) {
+                    anna.shakeTimer--;
+                    annaShakeX = Math.sin(anna.shakeTimer * 0.8) * 1.5;
                 }
-                ctx.globalAlpha = 1;
+                drawSprite(sprite, anna.x + annaShakeX, anna.y, anna.scale, anna.flip);
+
+                // Draw handbag when collecting money
+                if (anna.collecting) {
+                    const bagScale = 1.2;
+                    const bagOffsetX = anna.flip ? 3 : 16;
+                    const bagOffsetY = 14;
+                    const shimmer = 0.85 + Math.sin(Date.now() * 0.008) * 0.15;
+
+                    for (let row = 0; row < HANDBAG.length; row++) {
+                        for (let col = 0; col < HANDBAG[row].length; col++) {
+                            const pixel = HANDBAG[row][col];
+                            if (pixel === 0) continue;
+                            ctx.fillStyle = HANDBAG_COLORS[pixel];
+                            ctx.globalAlpha = pixel === 2 ? shimmer : 1;
+                            ctx.fillRect(
+                                (anna.x + bagOffsetX + col * bagScale) * PIXEL_SIZE,
+                                (anna.y + bagOffsetY + row * bagScale) * PIXEL_SIZE,
+                                PIXEL_SIZE * bagScale,
+                                PIXEL_SIZE * bagScale
+                            );
+                        }
+                    }
+                    ctx.globalAlpha = 1;
+                }
             }
 
             // Update Hello Kitty - walk around randomly
