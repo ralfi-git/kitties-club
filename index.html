@@ -546,6 +546,50 @@
         ];
         // Keep old climb for reference (commented out)
         const ANNA_POLE_CLIMB = ANNA_POLE_CLIMB_1;
+        
+        // Spin move - leaning back, arms out behind, legs wrapped around pole
+        // Body is upright, arms extend out to sides/back, legs wrap pole below
+        const ANNA_POLE_SPIN_BACK = [
+            [0,14,15,4,4,4,15,14,0,0],  // hair
+            [14,14,4,14,14,14,4,14,14,0],  // hair
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,4,1,1,1,4,0,0,0],  // face
+            [0,0,0,4,1,4,0,0,0,0],  // neck
+            [4,1,1,13,1,13,1,1,4,0],  // arms out to sides + shoulders
+            [0,0,4,13,13,13,4,0,0,0],  // body/chest
+            [0,0,0,4,13,4,0,0,0,0],  // hips
+            [0,0,0,1,0,1,0,0,0,0],  // thighs wrapped
+            [0,0,0,1,0,1,0,0,0,0],  // legs on pole
+            [0,0,0,4,0,4,0,0,0,0],  // feet
+        ];
+        
+        // Horizontal split at top - pole in middle, upper body left, legs right, left arm holds pole
+        const ANNA_POLE_SPLIT_TOP = [
+            [0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0],  // left hand gripping pole
+            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],  // left arm reaching up
+            [0,14,14,14,0,1,0,0,0,0,0,0,0,0,0,0,0,0],  // hair + arm continuing
+            [14,14,4,1,1,4,13,13,13,13,4,1,1,1,1,1,1,4],  // head + body horizontal + legs right
+            [0,14,4,1,1,1,4,13,13,4,0,0,0,0,0,0,0,0],  // face + body
+            [0,0,14,14,14,0,0,0,0,0,0,0,0,0,0,0,0,0],  // hair flowing down
+        ];
+        
+        // Iron X move - hands on pole, legs spread straight in V shape to sides
+        const ANNA_POLE_IRON_X_NEW = [
+            [0,0,0,0,4,0,4,0,0,0,0,0],  // hands gripping pole (centered)
+            [0,0,0,0,1,0,1,0,0,0,0,0],  // arms up to pole
+            [0,0,14,15,4,4,4,15,14,0,0,0],  // hair
+            [0,14,14,4,14,14,14,4,14,14,0,0],  // hair
+            [0,0,0,4,1,1,1,4,0,0,0,0],  // face
+            [0,0,0,4,1,1,1,4,0,0,0,0],  // face
+            [0,0,0,0,4,1,4,0,0,0,0,0],  // neck
+            [0,0,0,0,13,1,13,0,0,0,0,0],  // shoulders
+            [0,0,0,4,13,13,13,4,0,0,0,0],  // body
+            [0,0,0,1,4,13,4,1,0,0,0,0],  // hips + thighs start
+            [0,0,1,0,0,0,0,0,1,0,0,0],  // legs going out diagonal
+            [0,1,0,0,0,0,0,0,0,1,0,0],  // legs continuing
+            [4,0,0,0,0,0,0,0,0,0,4,0],  // feet pointed out
+        ];
+        
         const ANNA_POLE_HOLD = [
             [0,14,15,4,4,4,15,14,0,0],
             [14,14,4,14,14,14,4,14,14,0],
@@ -1000,8 +1044,13 @@
         // Pole dancing poses organized by type
         // type: 'standing' (normal Y), 'elevated' (higher on pole), 'inverted' (upside down), 'floor' (at pole base)
         const POLE_POSES = [
-            // ACTIVE MOVES - climb and slide
+            // ACTIVE MOVES - climb, split variations, spin, iron_x, iron_x_advanced, and slide
             { name: 'climb', frames: [ANNA_POLE_CLIMB_1, ANNA_POLE_CLIMB_2], duration: 15, type: 'climb' },
+            { name: 'split_top_left', frames: [ANNA_POLE_SPLIT_TOP], duration: 10, type: 'split_top', flip: false },
+            { name: 'split_top_right', frames: [ANNA_POLE_SPLIT_TOP], duration: 10, type: 'split_top', flip: true },
+            { name: 'spin', frames: [ANNA_POLE_SPIN_BACK], duration: 10, type: 'spin' },
+            { name: 'iron_x', frames: [ANNA_POLE_IRON_X_NEW], duration: 2, type: 'iron_x' },
+            { name: 'iron_x_advanced', frames: [ANNA_POLE_IRON_X_NEW], duration: 10, type: 'iron_x_advanced' },
             { name: 'slide', frames: [ANNA_POLE_SLIDE], duration: 10, type: 'slide' },
             
             /* COMMENTED OUT - other moves to tailor later
@@ -1112,11 +1161,17 @@
             // Pole dancing state
             poleDancing: false,       // is she on the pole?
             walkingToPole: false,     // is she walking to the pole?
-            poleState: 'none',        // 'none', 'climbing', 'sliding'
+            poleState: 'none',        // 'none', 'climbing_mid', 'split_left', 'climbing_top', 'split_right', 'spinning', 'iron_x', 'iron_x_advanced', 'sliding'
             poleSide: 'left',         // 'left' or 'right' side of pole
             poleY: 0,                 // current Y position on pole
             climbSpeed: 0.25,         // slower than walk speed
             slideSpeed: 0.25,         // slower than walk speed
+            spinAngle: 0,             // current spin rotation (0-360)
+            spinSpeed: 0.8,           // degrees per frame (slow spin)
+            splitTimer: 0,            // how long to hold split
+            splitDuration: 180,       // hold for ~3 seconds at 60fps
+            ironXTimer: 0,            // how long to hold iron X
+            ironXDuration: 180,       // hold for ~3 seconds at 60fps
         };
 
         // Stars - sparse, fade in/out style
@@ -2665,8 +2720,8 @@
                 const climbPose = POLE_POSES.find(p => p.name === 'climb');
                 const slidePose = POLE_POSES.find(p => p.name === 'slide');
                 
-                // === CLIMBING STATE ===
-                if (anna.poleState === 'climbing') {
+                // === CLIMBING TO MID STATE ===
+                if (anna.poleState === 'climbing_mid') {
                     // Animate climb frames
                     if (anna.frameTimer > 10) {
                         anna.frameTimer = 0;
@@ -2676,11 +2731,12 @@
                     // Move up the pole
                     anna.poleY -= anna.climbSpeed;
                     
-                    // Reached the top?
-                    const topY = pole.topY + 15;
-                    if (anna.poleY <= topY) {
-                        anna.poleY = topY;
-                        anna.poleState = 'sliding';
+                    // Reached the middle? Do split_left!
+                    const middleY = pole.topY + (pole.bottomY - pole.topY) * 0.5;
+                    if (anna.poleY <= middleY) {
+                        anna.poleY = middleY;
+                        anna.poleState = 'split_left';
+                        anna.splitTimer = 0;
                         anna.frame = 0;
                     }
                     
@@ -2689,6 +2745,161 @@
                     // Draw climb sprite
                     const climbSprite = climbPose.frames[anna.frame % climbPose.frames.length];
                     drawSprite(climbSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === SPLIT LEFT STATE (horizontal split at middle - body left, legs right) ===
+                } else if (anna.poleState === 'split_left') {
+                    const splitPose = POLE_POSES.find(p => p.name === 'split_top_left');
+                    
+                    // Position for horizontal split - shift left so pole is in middle of body
+                    anna.x = pole.x - 18;
+                    anna.flip = false;
+                    
+                    // Hold the pose
+                    anna.splitTimer++;
+                    
+                    // Done holding? Continue climbing to top
+                    if (anna.splitTimer >= anna.splitDuration) {
+                        anna.poleState = 'climbing_top';
+                        anna.splitTimer = 0;
+                        anna.x = pole.x - 8;  // reset position for climbing
+                        anna.frame = 0;
+                    }
+                    
+                    // Draw split sprite
+                    const splitSprite = splitPose.frames[0];
+                    drawSprite(splitSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === CLIMBING TO TOP STATE ===
+                } else if (anna.poleState === 'climbing_top') {
+                    // Animate climb frames
+                    if (anna.frameTimer > 10) {
+                        anna.frameTimer = 0;
+                        anna.frame = (anna.frame + 1) % climbPose.frames.length;
+                    }
+                    
+                    // Move up the pole
+                    anna.poleY -= anna.climbSpeed;
+                    
+                    // Reached the top? Do split_right!
+                    const topY = pole.topY + 20;
+                    if (anna.poleY <= topY) {
+                        anna.poleY = topY;
+                        anna.poleState = 'split_right';
+                        anna.splitTimer = 0;
+                        anna.frame = 0;
+                    }
+                    
+                    anna.y = anna.poleY;
+                    
+                    // Draw climb sprite
+                    const climbSprite = climbPose.frames[anna.frame % climbPose.frames.length];
+                    drawSprite(climbSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === SPLIT RIGHT STATE (horizontal split at top - body right, legs left / mirrored) ===
+                } else if (anna.poleState === 'split_right') {
+                    const splitPose = POLE_POSES.find(p => p.name === 'split_top_right');
+                    
+                    // Position for horizontal split - shift right since flipped
+                    anna.x = pole.x - 2;
+                    anna.flip = true;
+                    
+                    // Hold the pose
+                    anna.splitTimer++;
+                    
+                    // Done holding? Start spinning down
+                    if (anna.splitTimer >= anna.splitDuration) {
+                        anna.poleState = 'spinning';
+                        anna.spinAngle = 0;
+                        anna.splitTimer = 0;
+                        anna.x = pole.x - 8;  // reset position
+                        anna.flip = false;
+                    }
+                    
+                    // Draw split sprite (flipped)
+                    const splitSprite = splitPose.frames[0];
+                    drawSprite(splitSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === SPINNING STATE (coming down while spinning) ===
+                } else if (anna.poleState === 'spinning') {
+                    const spinPose = POLE_POSES.find(p => p.name === 'spin');
+                    
+                    // Rotate around the pole
+                    anna.spinAngle += anna.spinSpeed;
+                    
+                    // Move down while spinning
+                    anna.poleY += anna.slideSpeed * 0.5;  // slower descent while spinning
+                    
+                    // Calculate position around pole based on angle (smaller radius)
+                    const spinRadius = 2;  // very small left-right movement
+                    const angleRad = anna.spinAngle * Math.PI / 180;
+                    const offsetX = Math.sin(angleRad) * spinRadius;
+                    
+                    // Position swings left and right of pole (centered on pole)
+                    const poleCenter = pole.x + pole.width / 2;
+                    const spriteOffset = 10;
+                    anna.x = poleCenter - spriteOffset + offsetX;
+                    anna.y = anna.poleY;
+                    
+                    // Flip based on which side of pole she's on
+                    anna.flip = offsetX > 0;
+                    
+                    // Reached the middle? Do Iron X!
+                    const middleY = pole.topY + (pole.bottomY - pole.topY) * 0.5;
+                    if (anna.poleY >= middleY) {
+                        anna.poleY = middleY;
+                        anna.poleState = 'iron_x';
+                        anna.ironXTimer = 0;
+                        anna.x = pole.x - 8;  // center on pole
+                        anna.flip = false;
+                    }
+                    
+                    // Draw spin sprite
+                    const spinSprite = spinPose.frames[0];
+                    drawSprite(spinSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === IRON X STATE (holding pose) ===
+                } else if (anna.poleState === 'iron_x') {
+                    const ironXPose = POLE_POSES.find(p => p.name === 'iron_x');
+                    
+                    // Position so hands appear on pole
+                    anna.x = pole.x - 12;  // shift left so hands grip pole
+                    
+                    // Hold the pose
+                    anna.ironXTimer++;
+                    
+                    // Done holding? Start iron_x_advanced (sliding down while in iron_x)
+                    if (anna.ironXTimer >= anna.ironXDuration) {
+                        anna.poleState = 'iron_x_advanced';
+                        anna.ironXTimer = 0;
+                    }
+                    
+                    // Draw iron X sprite
+                    const ironXSprite = ironXPose.frames[0];
+                    drawSprite(ironXSprite, anna.x, anna.y, anna.scale, anna.flip);
+                
+                // === IRON X ADVANCED STATE (sliding down while holding iron_x pose) ===
+                } else if (anna.poleState === 'iron_x_advanced') {
+                    const ironXPose = POLE_POSES.find(p => p.name === 'iron_x_advanced');
+                    
+                    // Position so hands appear on pole
+                    anna.x = pole.x - 12;
+                    
+                    // Slide down while holding iron_x pose
+                    anna.poleY += anna.slideSpeed;
+                    anna.y = anna.poleY;
+                    
+                    // Reached the bottom? Done with routine
+                    const bottomY = pole.bottomY - 30;
+                    if (anna.poleY >= bottomY) {
+                        anna.poleY = bottomY;
+                        anna.poleDancing = false;
+                        anna.poleState = 'none';
+                        anna.x = pole.x - 8;
+                    }
+                    
+                    // Draw iron X sprite
+                    const ironXSprite = ironXPose.frames[0];
+                    drawSprite(ironXSprite, anna.x, anna.y, anna.scale, anna.flip);
                     
                 // === SLIDING STATE ===
                 } else if (anna.poleState === 'sliding') {
@@ -2756,7 +2967,7 @@
                     // Arrived at pole - start climbing!
                     anna.walkingToPole = false;
                     anna.poleDancing = true;
-                    anna.poleState = 'climbing';
+                    anna.poleState = 'climbing_mid';
                     anna.poleY = pole.bottomY - 30;  // start at bottom
                     anna.frame = 0;
                     // Flip based on side (face the pole)
@@ -2937,6 +3148,19 @@
                 if (kitty.x < 60) kitty.dirX = Math.abs(kitty.dirX);
                 if (kitty.y > rows * 0.7) kitty.dirY = -Math.abs(kitty.dirY);
                 if (kitty.y < rows * 0.3) kitty.dirY = Math.abs(kitty.dirY);
+                // Don't cross the pole when Anna is dancing
+                if (anna.poleDancing || anna.walkingToPole) {
+                    if (kitty.x > pole.x - 15 && kitty.x < pole.x + 15) {
+                        // Push kitty to whichever side she's closer to
+                        if (kitty.x < pole.x) {
+                            kitty.x = pole.x - 15;
+                            kitty.dirX = -Math.abs(kitty.dirX);
+                        } else {
+                            kitty.x = pole.x + 15;
+                            kitty.dirX = Math.abs(kitty.dirX);
+                        }
+                    }
+                }
                 // Random direction changes
                 if (Math.random() < 0.01) {
                     kitty.dirX = (Math.random() - 0.3) * 1.5;  // bias toward right
@@ -3062,6 +3286,19 @@
                     kitty.dirX = Math.abs(kitty.dirX);  // bounce away from bar
                 }
 
+                // Don't cross the pole when Anna is dancing
+                if (anna.poleDancing || anna.walkingToPole) {
+                    if (kitty.x > pole.x - 15 && kitty.x < pole.x + 15) {
+                        if (kitty.x < pole.x) {
+                            kitty.x = pole.x - 15;
+                            kitty.dirX = -Math.abs(kitty.dirX);
+                        } else {
+                            kitty.x = pole.x + 15;
+                            kitty.dirX = Math.abs(kitty.dirX);
+                        }
+                    }
+                }
+
                 // Randomly change direction
                 if (Math.random() < 0.008) {
                     kitty.dirX = (Math.random() - 0.5) * 2;
@@ -3168,6 +3405,19 @@
                 if (kitty.x < 58 && kitty.y > 35) {
                     kitty.x = 58;
                     kitty.dirX = Math.abs(kitty.dirX);
+                }
+
+                // Don't cross the pole when Anna is dancing
+                if (anna.poleDancing || anna.walkingToPole) {
+                    if (kitty.x > pole.x - 15 && kitty.x < pole.x + 15) {
+                        if (kitty.x < pole.x) {
+                            kitty.x = pole.x - 15;
+                            kitty.dirX = -Math.abs(kitty.dirX);
+                        } else {
+                            kitty.x = pole.x + 15;
+                            kitty.dirX = Math.abs(kitty.dirX);
+                        }
+                    }
                 }
 
                 // Randomly change direction (less often when collecting)
